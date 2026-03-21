@@ -55,7 +55,7 @@ export default function Dashboard() {
           Dashboard Principal
         </h1>
         <p className="text-gray-600">
-          Bienvenido a Syscom360 - Sistema de Gestión Empresarial
+          Bienvenido a SyscomWeb - Sistema de Gestión Empresarial
         </p>
       </div>
 

@@ -147,7 +147,7 @@ export default function MainLayout() {
             </div>
             <div className="space-y-1">
               <h1 className="text-xl font-bold bg-gradient-to-r from-[#40A095] to-[#99D6CF] bg-clip-text text-transparent">
-                Syscom360
+                SyscomWeb
               </h1>
               <p className="text-xs text-gray-600 font-medium">
                 Sistema ERP Empresarial
@@ -223,7 +223,7 @@ export default function MainLayout() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">Admin User</p>
-                <p className="text-xs text-gray-500">admin@syscom360.com</p>
+                <p className="text-xs text-gray-500">admin@SyscomWeb.com</p>
               </div>
             </div>
             <div className="flex gap-2 mt-2">

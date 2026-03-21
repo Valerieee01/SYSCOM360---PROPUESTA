@@ -113,7 +113,7 @@ export default function ParametrizacionEmpresa() {
               </label>
               <input
                 type="text"
-                defaultValue="Syscom360"
+                defaultValue="SyscomWeb"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -226,7 +226,7 @@ export default function ParametrizacionEmpresa() {
               </label>
               <input
                 type="email"
-                defaultValue="info@syscom360.com"
+                defaultValue="info@SyscomWeb.com"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -239,7 +239,7 @@ export default function ParametrizacionEmpresa() {
               </label>
               <input
                 type="url"
-                defaultValue="https://www.syscom360.com"
+                defaultValue="https://www.SyscomWeb.com"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
