@@ -165,7 +165,7 @@ export default function ProgramacionViajes() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <Sparkles className="w-8 h-8 text-purple-600" />
@@ -177,10 +177,11 @@ export default function ProgramacionViajes() {
         </div>
         <button
           onClick={generarSugerencias}
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-2 font-medium"
+          className="w-full lg:w-auto px-4 lg:px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 font-medium"
         >
           <Sparkles className="w-5 h-5" />
-          Generar Sugerencias IA
+          <span className="hidden lg:inline">Generar Sugerencias IA</span>
+          <span className="lg:hidden">Generar Sugerencias</span>
         </button>
       </div>
 
@@ -190,7 +191,7 @@ export default function ProgramacionViajes() {
           <Route className="w-5 h-5 text-purple-600" />
           Configuración del Nuevo Viaje
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Origen *
@@ -247,7 +248,7 @@ export default function ProgramacionViajes() {
                 Basado en {rutaSugerida.viajesRealizados} viajes anteriores
               </span>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <p className="text-xs text-gray-600">Distancia</p>
                 <p className="text-sm font-bold text-gray-900">{rutaSugerida.distancia} km</p>
@@ -279,7 +280,7 @@ export default function ProgramacionViajes() {
           <User className="w-5 h-5 text-blue-600" />
           Información del Remitente
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Remitente / Razón Social *
@@ -354,7 +355,7 @@ export default function ProgramacionViajes() {
           <MapPin className="w-5 h-5 text-purple-600" />
           Información del Destinatario
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Destinatario / Razón Social *
@@ -430,12 +431,13 @@ export default function ProgramacionViajes() {
             <Building2 className="w-5 h-5 text-green-600" />
             Propietario de la Carga
           </h3>
-          <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-green-300 text-green-700 rounded-lg hover:bg-green-50 transition-colors text-sm">
+          <button className="flex items-center gap-2 px-3 py-2 lg:py-1.5 bg-white border border-green-300 text-green-700 rounded-lg hover:bg-green-50 active:scale-95 transition-all text-sm">
             <Copy className="w-4 h-4" />
-            Copiar del Remitente
+            <span className="hidden lg:inline">Copiar del Remitente</span>
+            <span className="lg:hidden">Copiar</span>
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Propietario de la Carga *
@@ -487,8 +489,8 @@ export default function ProgramacionViajes() {
           <Package className="w-5 h-5 text-orange-600" />
           Información de la Mercancía
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="lg:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Descripción de la Mercancía *
             </label>
@@ -603,7 +605,7 @@ export default function ProgramacionViajes() {
                 Mejor opción
               </span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {conductoresDisponibles.map((conductor, index) => (
                 <div
                   key={conductor.id}
@@ -670,7 +672,7 @@ export default function ProgramacionViajes() {
                 Mejor opción
               </span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {vehiculosDisponibles.map((vehiculo, index) => (
                 <div
                   key={vehiculo.placa}
@@ -731,7 +733,7 @@ export default function ProgramacionViajes() {
               <CheckCircle className="w-5 h-5 text-teal-600" />
               Resumen de Programación Sugerida
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <MapPin className="w-5 h-5 text-teal-600" />
@@ -783,12 +785,13 @@ export default function ProgramacionViajes() {
                 </div>
               </div>
             </div>
-            <div className="mt-6 flex gap-3">
-              <button className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-600 to-green-600 text-white rounded-lg hover:shadow-lg transition-all font-medium flex items-center justify-center gap-2">
+            <div className="mt-6 flex flex-col lg:flex-row gap-2 lg:gap-3">
+              <button className="w-full lg:flex-1 px-4 lg:px-6 py-3 bg-gradient-to-r from-teal-600 to-green-600 text-white rounded-lg hover:shadow-lg active:scale-95 transition-all font-medium flex items-center justify-center gap-2 order-1">
                 <CheckCircle className="w-5 h-5" />
-                Confirmar y Crear Viaje
+                <span className="hidden lg:inline">Confirmar y Crear Viaje</span>
+                <span className="lg:hidden">Confirmar Viaje</span>
               </button>
-              <button className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all font-medium">
+              <button className="w-full lg:w-auto px-4 lg:px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:scale-95 transition-all font-medium order-2">
                 Modificar
               </button>
             </div>
@@ -804,10 +807,10 @@ export default function ProgramacionViajes() {
             Agenda Logística - Viajes Programados
           </h3>
           <div className="flex items-center gap-2">
-            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all">
               <Filter className="w-4 h-4 text-gray-600" />
             </button>
-            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all">
               <RefreshCw className="w-4 h-4 text-gray-600" />
             </button>
           </div>
@@ -850,7 +853,7 @@ export default function ProgramacionViajes() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
+                    <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg active:scale-95 transition-all">
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </td>

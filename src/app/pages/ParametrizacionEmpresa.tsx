@@ -11,7 +11,7 @@ import {
   Upload,
   CheckCircle,
 } from "lucide-react";
-import logoFull from "../../assets/0638760b416ee7488ca6ef20ea955dc946a587db.png";
+import logoFull from "figma:asset/0638760b416ee7488ca6ef20ea955dc946a587db.png";
 
 export default function ParametrizacionEmpresa() {
   const [isSaving, setIsSaving] = useState(false);
@@ -64,8 +64,8 @@ export default function ParametrizacionEmpresa() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Logo de la Empresa
               </label>
@@ -75,7 +75,7 @@ export default function ParametrizacionEmpresa() {
                 </div>
                 <button
                   type="button"
-                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
+                  className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all"
                 >
                   <Upload className="w-4 h-4" />
                   <span>Cambiar Logo</span>
@@ -83,7 +83,7 @@ export default function ParametrizacionEmpresa() {
               </div>
             </div>
 
-            <div className="md:col-span-2">
+            <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Razón Social *
               </label>
@@ -113,7 +113,7 @@ export default function ParametrizacionEmpresa() {
               </label>
               <input
                 type="text"
-                defaultValue="SyscomWeb"
+                defaultValue="Syscom web"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -157,8 +157,8 @@ export default function ParametrizacionEmpresa() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Dirección Principal *
               </label>
@@ -226,7 +226,7 @@ export default function ParametrizacionEmpresa() {
               </label>
               <input
                 type="email"
-                defaultValue="info@SyscomWeb.com"
+                defaultValue="info@syscomweb.com"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -239,7 +239,7 @@ export default function ParametrizacionEmpresa() {
               </label>
               <input
                 type="url"
-                defaultValue="https://www.SyscomWeb.com"
+                defaultValue="https://www.syscomweb.com"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -260,7 +260,7 @@ export default function ParametrizacionEmpresa() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Moneda Principal
@@ -367,7 +367,7 @@ export default function ParametrizacionEmpresa() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Código RNDC
@@ -389,7 +389,7 @@ export default function ParametrizacionEmpresa() {
               </select>
             </div>
 
-            <div className="md:col-span-2">
+            <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 URL API RNDC
               </label>
@@ -425,27 +425,29 @@ export default function ParametrizacionEmpresa() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-3">
+        <div className="sticky bottom-0 left-0 right-0 bg-white lg:bg-transparent flex flex-col lg:flex-row items-stretch lg:items-center justify-end gap-2 lg:gap-3 p-4 lg:p-0 border-t border-gray-200 lg:border-t-0 -mx-6 lg:mx-0 -mb-6 lg:mb-0 shadow-lg lg:shadow-none">
           <button
             type="button"
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all font-medium"
+            className="w-full lg:w-auto px-4 lg:px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:scale-95 transition-all font-medium order-2 lg:order-1"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#40A095] to-[#99D6CF] text-white rounded-lg hover:from-[#99D6CF] hover:to-[#40A095] transition-all shadow-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full lg:w-auto flex items-center justify-center gap-2 px-4 lg:px-6 py-3 bg-gradient-to-r from-[#40A095] to-[#99D6CF] text-white rounded-lg hover:from-[#99D6CF] hover:to-[#40A095] active:scale-95 transition-all shadow-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed order-1 lg:order-2"
           >
             {isSaving ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Guardando...</span>
+                <span className="hidden lg:inline">Guardando...</span>
+                <span className="lg:hidden">Guardando...</span>
               </>
             ) : (
               <>
                 <Save className="w-5 h-5" />
-                <span>Guardar Cambios</span>
+                <span className="hidden lg:inline">Guardar Cambios</span>
+                <span className="lg:hidden">Guardar</span>
               </>
             )}
           </button>

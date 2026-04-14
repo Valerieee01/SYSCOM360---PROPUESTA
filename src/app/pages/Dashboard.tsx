@@ -48,19 +48,19 @@ const modules = [
 
 export default function Dashboard() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
           Dashboard Principal
         </h1>
-        <p className="text-gray-600">
-          Bienvenido a SyscomWeb - Sistema de Gestión Empresarial
+        <p className="text-sm lg:text-base text-gray-600">
+          Bienvenido a Syscom web - Sistema de Gestión Empresarial
         </p>
       </div>
 
       {/* Global KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
         <KPICard
           title="Ingresos del Mes"
           value="$128.5M"
@@ -96,45 +96,45 @@ export default function Dashboard() {
 
       {/* Modules Grid */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <h2 className="text-lg lg:text-xl font-bold text-gray-900 mb-3 lg:mb-4">
           Módulos del Sistema
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           {modules.map((module) => {
             const Icon = module.icon;
             return (
               <Link
                 key={module.name}
                 to={module.path}
-                className="group bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all"
+                className="group bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all active:shadow-md"
               >
-                <div className={`${module.bgColor} p-6`}>
+                <div className={`${module.bgColor} p-4 lg:p-6`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-white mb-2">
+                      <h3 className="text-xl lg:text-2xl font-bold text-white mb-1 lg:mb-2">
                         {module.name}
                       </h3>
-                      <p className="text-blue-50 text-sm">
+                      <p className="text-blue-50 text-xs lg:text-sm">
                         {module.description}
                       </p>
                     </div>
-                    <Icon className="w-12 h-12 text-white opacity-80" />
+                    <Icon className="w-10 lg:w-12 h-10 lg:h-12 text-white opacity-80 flex-shrink-0 ml-2" />
                   </div>
                 </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-3 gap-4">
+                <div className="p-4 lg:p-6">
+                  <div className="grid grid-cols-3 gap-3 lg:gap-4">
                     {Object.entries(module.stats).map(([key, value]) => (
                       <div key={key}>
-                        <p className="text-xs text-gray-500 uppercase mb-1">
+                        <p className="text-xs text-gray-500 uppercase mb-1 truncate">
                           {key}
                         </p>
-                        <p className="text-lg font-bold text-gray-900">
+                        <p className="text-base lg:text-lg font-bold text-gray-900 truncate">
                           {value}
                         </p>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-gray-200">
                     <span className="text-blue-600 text-sm font-medium group-hover:underline">
                       Acceder al módulo →
                     </span>
@@ -147,11 +147,11 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:p-6">
+        <h2 className="text-lg lg:text-xl font-bold text-gray-900 mb-3 lg:mb-4">
           Actividad Reciente
         </h2>
-        <div className="space-y-4">
+        <div className="space-y-3 lg:space-y-4">
           {[
             {
               action: "Nuevo pedido creado",
@@ -180,18 +180,18 @@ export default function Dashboard() {
           ].map((activity, index) => (
             <div
               key={index}
-              className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 lg:gap-4 p-2 lg:p-3 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors"
             >
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">
+              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
                   {activity.action}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 truncate">
                   {activity.user} • {activity.module}
                 </p>
               </div>
-              <span className="text-xs text-gray-400">{activity.time}</span>
+              <span className="text-xs text-gray-400 flex-shrink-0 hidden sm:block">{activity.time}</span>
             </div>
           ))}
         </div>

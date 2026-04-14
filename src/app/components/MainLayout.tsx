@@ -22,7 +22,7 @@ import {
   MapPin,
   Calendar,
 } from "lucide-react";
-import logoCompact from "../../assets/e2e980fcf937603ef77d0fe945c514fbfbe5a597.png";
+import logoCompact from "figma:asset/e2e980fcf937603ef77d0fe945c514fbfbe5a597.png";
 import logoEmpresa from "../assets/logo-empresa.svg";
 
 const modules = [
@@ -124,7 +124,7 @@ export default function MainLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-hidden w-full max-w-full">
       {/* Sidebar */}
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 shadow-sm transform transition-transform duration-300 ${
@@ -147,7 +147,7 @@ export default function MainLayout() {
             </div>
             <div className="space-y-1">
               <h1 className="text-xl font-bold bg-gradient-to-r from-[#40A095] to-[#99D6CF] bg-clip-text text-transparent">
-                SyscomWeb
+                Syscom web
               </h1>
               <p className="text-xs text-gray-600 font-medium">
                 Sistema ERP Empresarial
@@ -223,18 +223,20 @@ export default function MainLayout() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">Admin User</p>
-                <p className="text-xs text-gray-500">admin@SyscomWeb.com</p>
+                <p className="text-xs text-gray-500">admin@syscomweb.com</p>
               </div>
             </div>
             <div className="flex gap-2 mt-2">
-              <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-[#99D6CF]/10 hover:text-[#40A095] transition-all">
+              <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-[#99D6CF]/10 hover:text-[#40A095] transition-all active:scale-95">
                 <Settings className="w-4 h-4" />
+                <span className="hidden lg:inline text-xs">Config</span>
               </button>
               <button
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-[#F03D26]/10 hover:text-[#F03D26] transition-all"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-[#F03D26]/10 hover:text-[#F03D26] transition-all active:scale-95"
                 onClick={handleLogout}
               >
                 <LogOut className="w-4 h-4" />
+                <span className="hidden lg:inline text-xs">Salir</span>
               </button>
             </div>
           </div>
@@ -242,31 +244,31 @@ export default function MainLayout() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden w-full max-w-full min-w-0">
         {/* Top Bar */}
         <header className="bg-gradient-to-r from-[#40A095] to-[#99D6CF] shadow-lg">
-          <div className="flex items-center justify-between px-6 py-3">
+          <div className="flex items-center justify-between px-4 lg:px-6 py-3">
             {/* Left side - Logo and Company Info */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 lg:gap-4 flex-1 min-w-0">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden text-white hover:bg-white/20 p-2 rounded-lg transition-all"
+                className="lg:hidden text-white hover:bg-white/20 p-2 rounded-lg transition-all flex-shrink-0"
               >
                 <Menu className="w-6 h-6" />
               </button>
-              
-              <div className="flex items-center gap-4">
+
+              <div className="flex items-center gap-2 lg:gap-4 min-w-0">
                 {/* Logo de la empresa */}
-                <div className="hidden md:flex items-center justify-center w-12 h-12 bg-white/90 rounded-lg shadow-md">
-                  <img src={logoEmpresa} alt={empresaData.nombre} className="h-10 w-10" />
+                <div className="hidden md:flex items-center justify-center w-10 lg:w-12 h-10 lg:h-12 bg-white/90 rounded-lg shadow-md flex-shrink-0">
+                  <img src={logoEmpresa} alt={empresaData.nombre} className="h-8 lg:h-10 w-8 lg:w-10" />
                 </div>
-                
+
                 {/* Información de la empresa */}
-                <div>
-                  <h2 className="text-sm font-bold text-white">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-xs lg:text-sm font-bold text-white truncate">
                     {empresaData.nombre}
                   </h2>
-                  <p className="text-xs text-white/80">
+                  <p className="text-xs text-white/80 hidden sm:block">
                     NIT: {empresaData.nit}
                   </p>
                 </div>
@@ -274,9 +276,9 @@ export default function MainLayout() {
             </div>
 
             {/* Right side - Date, Time and Notifications */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 lg:gap-4 flex-shrink-0">
               {/* Fecha y Hora */}
-              <div className="hidden lg:flex items-center gap-4 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20">
+              <div className="hidden xl:flex items-center gap-4 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-white" />
                   <div>
@@ -286,9 +288,9 @@ export default function MainLayout() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="w-px h-10 bg-white/30"></div>
-                
+
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-white" />
                   <div>
@@ -300,9 +302,17 @@ export default function MainLayout() {
                 </div>
               </div>
 
+              {/* Mobile - Solo hora */}
+              <div className="xl:hidden flex items-center gap-1 bg-white/10 backdrop-blur-sm px-2 lg:px-3 py-1.5 lg:py-2 rounded-lg border border-white/20">
+                <Clock className="w-3 lg:w-4 h-3 lg:h-4 text-white" />
+                <p className="text-sm lg:text-base font-bold text-white font-mono">
+                  {formatTime(currentDateTime)}
+                </p>
+              </div>
+
               {/* Notificaciones */}
               <button
-                className="relative p-2 text-white hover:bg-white/20 rounded-lg transition-all"
+                className="relative p-2 text-white hover:bg-white/20 rounded-lg transition-all flex-shrink-0"
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
               >
                 <Bell className="w-5 h-5" />
@@ -460,27 +470,35 @@ export default function MainLayout() {
         />
       )}
 
-      {/* Notifications Panel */}
+      {/* Notifications Panel - Full Screen on Mobile, Panel on Desktop */}
       {notificationsOpen && (
-        <div className="fixed right-6 top-20 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[600px] overflow-hidden flex flex-col">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#40A095] to-[#99D6CF] p-4 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-lg">Notificaciones en Tiempo Real</h3>
-                <p className="text-xs text-white/80 mt-0.5">Novedades de viajes y operaciones</p>
-              </div>
-              <button
-                onClick={() => setNotificationsOpen(false)}
-                className="p-1 hover:bg-white/20 rounded-lg transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
+        <>
+          {/* Overlay solo en móvil */}
+          <div
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50"
+            onClick={() => setNotificationsOpen(false)}
+          />
 
-          {/* Notifications List */}
-          <div className="flex-1 overflow-y-auto">
+          {/* Panel de Notificaciones */}
+          <div className="fixed lg:right-6 lg:top-20 lg:w-96 inset-0 lg:inset-auto bg-white lg:rounded-xl shadow-2xl border-0 lg:border border-gray-200 z-50 h-full lg:h-auto lg:max-h-[600px] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-[#40A095] to-[#99D6CF] p-4 lg:p-4 text-white flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-lg lg:text-lg">Notificaciones en Tiempo Real</h3>
+                  <p className="text-xs text-white/80 mt-0.5">Novedades de viajes y operaciones</p>
+                </div>
+                <button
+                  onClick={() => setNotificationsOpen(false)}
+                  className="p-1 hover:bg-white/20 rounded-lg transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Notifications List */}
+            <div className="flex-1 overflow-y-auto min-h-0 -webkit-overflow-scrolling-touch">
             {/* Notification 1 - Alerta */}
             <div className="p-4 border-b border-gray-200 hover:bg-red-50 transition-all cursor-pointer">
               <div className="flex gap-3">
@@ -634,13 +652,14 @@ export default function MainLayout() {
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="p-3 border-t border-gray-200 bg-gray-50">
-            <button className="w-full py-2 text-sm text-[#40A095] hover:bg-[#40A095]/10 rounded-lg font-medium transition-all">
-              Ver todas las notificaciones
-            </button>
+            {/* Footer */}
+            <div className="p-3 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+              <button className="w-full py-2 text-sm text-[#40A095] hover:bg-[#40A095]/10 rounded-lg font-medium transition-all">
+                Ver todas las notificaciones
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

@@ -41,7 +41,7 @@ export default function PDFViewer({ documentData, documentType, onClose }: PDFVi
       <div className="border-b-4 border-teal-600 pb-4">
         <div className="flex justify-between items-start">
           <div>
-            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM360" alt="Logo" className="h-12 mb-2" />
+            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM WEB" alt="Logo" className="h-12 mb-2" />
             <p className="text-xs text-gray-600">NIT: 900.123.456-7</p>
             <p className="text-xs text-gray-600">Transporte de Carga Nacional</p>
           </div>
@@ -118,7 +118,7 @@ export default function PDFViewer({ documentData, documentType, onClose }: PDFVi
             <p className="font-bold text-lg text-green-600">{documentData.estado}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-gray-500">Generado por: Sistema Syscom360</p>
+            <p className="text-xs text-gray-500">Generado por: Sistema Syscom web</p>
             <p className="text-xs text-gray-500">Fecha de impresión: {new Date().toLocaleString("es-CO")}</p>
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function PDFViewer({ documentData, documentType, onClose }: PDFVi
       <div className="border-b-4 border-green-600 pb-4">
         <div className="flex justify-between items-start">
           <div>
-            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM360" alt="Logo" className="h-12 mb-2" />
+            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM WEB" alt="Logo" className="h-12 mb-2" />
             <p className="text-xs text-gray-600">NIT: 900.123.456-7</p>
           </div>
           <div className="text-right">
@@ -211,7 +211,7 @@ export default function PDFViewer({ documentData, documentType, onClose }: PDFVi
       <div className="border-b-4 border-purple-600 pb-4">
         <div className="flex justify-between items-start">
           <div>
-            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM360" alt="Logo" className="h-12 mb-2" />
+            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM WEB" alt="Logo" className="h-12 mb-2" />
             <p className="text-xs text-gray-600">NIT: 900.123.456-7</p>
           </div>
           <div className="text-right">
@@ -274,7 +274,7 @@ export default function PDFViewer({ documentData, documentType, onClose }: PDFVi
       <div className="border-b-4 border-orange-600 pb-4">
         <div className="flex justify-between items-start">
           <div>
-            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM360" alt="Logo" className="h-12 mb-2" />
+            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM WEB" alt="Logo" className="h-12 mb-2" />
             <p className="text-xs text-gray-600">NIT: 900.123.456-7</p>
           </div>
           <div className="text-right">
@@ -367,7 +367,7 @@ export default function PDFViewer({ documentData, documentType, onClose }: PDFVi
       <div className="border-b-4 border-emerald-600 pb-4">
         <div className="flex justify-between items-start">
           <div>
-            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM360" alt="Logo" className="h-12 mb-2" />
+            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM WEB" alt="Logo" className="h-12 mb-2" />
             <p className="text-xs text-gray-600">NIT: 900.123.456-7</p>
           </div>
           <div className="text-right">
@@ -457,7 +457,7 @@ export default function PDFViewer({ documentData, documentType, onClose }: PDFVi
       <div className="border-b-4 border-teal-600 pb-4">
         <div className="flex justify-between items-start">
           <div>
-            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM360" alt="Logo" className="h-12 mb-2" />
+            <img src="https://via.placeholder.com/150x50/40A095/FFFFFF?text=SYSCOM WEB" alt="Logo" className="h-12 mb-2" />
             <p className="text-xs text-gray-600">NIT: 900.123.456-7</p>
           </div>
           <div className="text-right">

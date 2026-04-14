@@ -122,7 +122,7 @@ export default function Manifiestos() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Gestión de Manifiestos
@@ -131,14 +131,14 @@ export default function Manifiestos() {
             Control de manifiestos y envío al RNDC
           </p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+        <button className="w-full lg:w-auto flex items-center justify-center gap-2 px-4 lg:px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all shadow-sm">
           <Plus className="w-5 h-5" />
-          Nuevo Manifiesto
+          <span>Nuevo Manifiesto</span>
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {[
           {
             label: "Total",
@@ -189,7 +189,7 @@ export default function Manifiestos() {
 
       {/* Search and Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -200,13 +200,13 @@ export default function Manifiestos() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="flex items-center justify-center gap-2 px-4 py-2.5 lg:py-2 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all">
             <Filter className="w-5 h-5 text-gray-600" />
-            Filtros
+            <span>Filtros</span>
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="flex items-center justify-center gap-2 px-4 py-2.5 lg:py-2 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all">
             <Download className="w-5 h-5 text-gray-600" />
-            Exportar
+            <span>Exportar</span>
           </button>
         </div>
       </div>
@@ -310,7 +310,7 @@ export default function Manifiestos() {
                       </button>
                       {manifiesto.estadoRNDC === "Pendiente" &&
                         allValidationsOk(manifiesto.validaciones) && (
-                          <button className="flex items-center gap-1 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs">
+                          <button className="flex items-center gap-1 px-2.5 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 active:scale-95 transition-all text-xs font-medium">
                             <Send className="w-3 h-3" />
                             Enviar
                           </button>
@@ -357,9 +357,9 @@ export default function Manifiestos() {
                 </div>
                 {selectedManifiesto.estadoRNDC === "Pendiente" &&
                   allValidationsOk(selectedManifiesto.validaciones) && (
-                    <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <button className="w-full lg:w-auto flex items-center justify-center gap-2 px-4 lg:px-6 py-3 lg:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all">
                       <Send className="w-4 h-4" />
-                      Enviar al RNDC
+                      <span>Enviar al RNDC</span>
                     </button>
                   )}
               </div>
@@ -369,7 +369,7 @@ export default function Manifiestos() {
                 <h3 className="text-lg font-bold text-gray-900 mb-4">
                   Panel de Validaciones
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {[
                     { key: "vehiculoOk", label: "Vehículo Registrado" },
                     { key: "conductorOk", label: "Conductor Activo" },

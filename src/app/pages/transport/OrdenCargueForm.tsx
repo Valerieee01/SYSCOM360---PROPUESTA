@@ -615,7 +615,7 @@ export default function OrdenCargueForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Cita para Cargue *
+              Compañía para Cargue *
             </label>
             <input
               type="datetime-local"
@@ -624,7 +624,7 @@ export default function OrdenCargueForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Cita para Descargue
+              Compañía para Descargue
             </label>
             <input
               type="datetime-local"
@@ -659,21 +659,23 @@ export default function OrdenCargueForm({
       </div>
 
       {/* Botones de Acción */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+      <div className="sticky bottom-0 left-0 right-0 bg-white lg:bg-transparent flex flex-col lg:flex-row items-stretch lg:items-center justify-end gap-2 lg:gap-3 p-4 lg:p-0 lg:pt-4 border-t border-gray-200 -mx-4 lg:mx-0 -mb-4 lg:mb-0 shadow-lg lg:shadow-none">
         <button
           onClick={onClose}
-          className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+          className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-3 lg:order-1"
         >
           <X className="w-4 h-4" />
-          Cancelar
+          <span>Cancelar</span>
         </button>
-        <button className="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2">
+        <button className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-2 lg:order-2">
           <Save className="w-4 h-4" />
-          Guardar Borrador
+          <span className="hidden lg:inline">Guardar Borrador</span>
+          <span className="lg:hidden">Guardar</span>
         </button>
-        <button className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-2">
+        <button className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-1 lg:order-3">
           <Send className="w-4 h-4" />
-          Guardar y Asignar Vehículo
+          <span className="hidden lg:inline">Guardar y Asignar Vehículo</span>
+          <span className="lg:hidden">Asignar Vehículo</span>
         </button>
       </div>
     </div>

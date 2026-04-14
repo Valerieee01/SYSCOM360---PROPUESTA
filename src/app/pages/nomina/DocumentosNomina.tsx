@@ -230,9 +230,10 @@ export default function DocumentosNomina() {
         </div>
       </div>
 
-      {/* Documents Table */}
+      {/* Documents - Desktop Table / Mobile Cards */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -305,6 +306,93 @@ export default function DocumentosNomina() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="lg:hidden divide-y divide-gray-200">
+          {filteredDocuments.map((doc) => {
+            const docType = documentTypes.find((dt) => dt.name === doc.type);
+            const Icon = docType?.icon || FileText;
+            const colorClass = {
+              blue: { bg: 'from-blue-500 to-blue-600' },
+              red: { bg: 'from-red-500 to-red-600' },
+              green: { bg: 'from-green-500 to-green-600' },
+              purple: { bg: 'from-purple-500 to-purple-600' },
+              orange: { bg: 'from-orange-500 to-orange-600' },
+              teal: { bg: 'from-teal-500 to-teal-600' },
+            }[docType?.color || 'blue'] || { bg: 'from-gray-500 to-gray-600' };
+
+            return (
+              <div
+                key={doc.id}
+                className="p-4 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className={`w-10 h-10 bg-gradient-to-br ${colorClass.bg} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide truncate">
+                        {doc.type}
+                      </p>
+                      <p className="font-bold text-gray-900 text-base truncate">
+                        {doc.numero}
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getStatusColor(
+                      doc.estado
+                    )}`}
+                  >
+                    {doc.estado}
+                  </span>
+                </div>
+
+                {/* Info */}
+                <div className="space-y-2 mb-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">Fecha</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {new Date(doc.fecha).toLocaleDateString("es-CO", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">Empleado</span>
+                    <span className="text-sm font-medium text-gray-900 truncate ml-2">
+                      {doc.empleado}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">Valor</span>
+                    <span className="text-sm font-bold text-gray-900">
+                      ${(doc.valor / 1000000).toFixed(1)}M
+                    </span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                  <button
+                    onClick={() => handleEdit(doc)}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all font-medium text-sm"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    <span>Editar</span>
+                  </button>
+                  <button className="p-2.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 active:scale-95 transition-all">
+                    <Download className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -384,14 +472,14 @@ export default function DocumentosNomina() {
                 </select>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+              <div className="sticky bottom-0 left-0 right-0 bg-white lg:bg-transparent flex flex-col lg:flex-row items-stretch lg:items-center justify-end gap-2 lg:gap-3 p-4 lg:p-0 lg:pt-4 border-t border-gray-200 -mx-6 lg:mx-0 -mb-6 lg:mb-0 shadow-lg lg:shadow-none">
                 <button
                   onClick={closeModal}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
+                  className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:scale-95 transition-all order-2 lg:order-1"
                 >
                   Cancelar
                 </button>
-                <button className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-md transition-all">
+                <button className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-md active:scale-95 transition-all order-1 lg:order-2">
                   {isCreating ? "Crear" : "Guardar"}
                 </button>
               </div>

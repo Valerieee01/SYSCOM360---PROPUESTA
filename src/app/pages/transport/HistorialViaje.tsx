@@ -36,7 +36,7 @@ const viajesConHistorial = [
       {
         evento: "Pedido creado",
         fecha: "2024-03-10 09:30",
-        usuario: "admin@syscom360.com",
+        usuario: "admin@syscomweb.com",
         documento: "PED-2024-045",
         estado: "completado",
         icon: FileText,
@@ -46,7 +46,7 @@ const viajesConHistorial = [
       {
         evento: "Orden de cargue generada",
         fecha: "2024-03-10 10:15",
-        usuario: "operaciones@syscom360.com",
+        usuario: "operaciones@syscomweb.com",
         documento: "OC-2024-078",
         estado: "completado",
         icon: Package,
@@ -76,7 +76,7 @@ const viajesConHistorial = [
       {
         evento: "Remesa creada",
         fecha: "2024-03-11 14:00",
-        usuario: "logistica@syscom360.com",
+        usuario: "logistica@syscomweb.com",
         documento: "REM-2024-128",
         estado: "completado",
         icon: Package,
@@ -106,7 +106,7 @@ const viajesConHistorial = [
       {
         evento: "Anticipo generado",
         fecha: "2024-03-13 10:00",
-        usuario: "finanzas@syscom360.com",
+        usuario: "finanzas@syscomweb.com",
         documento: "ANT-2024-034",
         estado: "completado",
         icon: DollarSign,
@@ -168,7 +168,7 @@ const viajesConHistorial = [
       {
         evento: "Pedido creado",
         fecha: "2024-03-08 11:00",
-        usuario: "admin@syscom360.com",
+        usuario: "admin@syscomweb.com",
         documento: "PED-2024-046",
         estado: "completado",
         icon: FileText,
@@ -177,7 +177,7 @@ const viajesConHistorial = [
       {
         evento: "Orden de cargue generada",
         fecha: "2024-03-08 11:30",
-        usuario: "operaciones@syscom360.com",
+        usuario: "operaciones@syscomweb.com",
         documento: "OC-2024-079",
         estado: "completado",
         icon: Package,
@@ -195,7 +195,7 @@ const viajesConHistorial = [
       {
         evento: "Remesa creada",
         fecha: "2024-03-09 09:00",
-        usuario: "logistica@syscom360.com",
+        usuario: "logistica@syscomweb.com",
         documento: "REM-2024-129",
         estado: "completado",
         icon: Package,
@@ -213,7 +213,7 @@ const viajesConHistorial = [
       {
         evento: "Anticipo generado",
         fecha: "2024-03-10 10:00",
-        usuario: "finanzas@syscom360.com",
+        usuario: "finanzas@syscomweb.com",
         documento: "ANT-2024-035",
         estado: "completado",
         icon: DollarSign,
@@ -249,7 +249,7 @@ const viajesConHistorial = [
       {
         evento: "Cumplido generado",
         fecha: "2024-03-11 16:00",
-        usuario: "operaciones@syscom360.com",
+        usuario: "operaciones@syscomweb.com",
         documento: "CUM-2024-067",
         estado: "completado",
         icon: ClipboardCheck,

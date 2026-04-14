@@ -101,7 +101,7 @@ export default function CumplidoForm({
           <ClipboardList className="w-5 h-5 text-teal-600" />
           Datos Básicos del Cumplido
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               No. Cumplido
@@ -150,7 +150,7 @@ export default function CumplidoForm({
           Información del Manifiesto (Heredada)
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
           <div className="md:col-span-3">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               No. Manifiesto *
@@ -165,7 +165,7 @@ export default function CumplidoForm({
         </div>
 
         {/* Datos heredados del manifiesto */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1 text-xs">
               Compañía
@@ -231,7 +231,7 @@ export default function CumplidoForm({
           <Building2 className="w-5 h-5 text-purple-600" />
           Información Adicional y Configuración
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tolerancia en Faltante (%)
@@ -370,7 +370,7 @@ export default function CumplidoForm({
           <FileCheck className="w-5 h-5 text-green-600" />
           Datos del Cumplido - Cierre del Viaje
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tipo de Cumplido *
@@ -451,7 +451,7 @@ export default function CumplidoForm({
         </h3>
         
         {/* Grid de Totales */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div className="p-4 bg-white rounded-lg border border-indigo-200">
             <label className="block text-sm font-medium text-gray-600 mb-2">
               Peso Total
@@ -555,7 +555,7 @@ export default function CumplidoForm({
           <AlertCircle className="w-5 h-5 text-slate-600" />
           Información del Sistema
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Fecha de Creación
@@ -573,7 +573,7 @@ export default function CumplidoForm({
             </label>
             <input
               type="text"
-              defaultValue="admin@syscom360.com"
+              defaultValue="admin@syscomweb.com"
               disabled
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
             />
@@ -596,21 +596,23 @@ export default function CumplidoForm({
       </div>
 
       {/* Botones de Acción */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+      <div className="sticky bottom-0 left-0 right-0 bg-white lg:bg-transparent flex flex-col lg:flex-row items-stretch lg:items-center justify-end gap-2 lg:gap-3 p-4 lg:p-0 lg:pt-4 border-t border-gray-200 -mx-4 lg:mx-0 -mb-4 lg:mb-0 shadow-lg lg:shadow-none">
         <button
           onClick={onClose}
-          className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+          className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-3 lg:order-1"
         >
           <X className="w-4 h-4" />
-          Cancelar
+          <span>Cancelar</span>
         </button>
-        <button className="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2">
+        <button className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-2 lg:order-2">
           <Save className="w-4 h-4" />
-          Guardar Borrador
+          <span className="hidden lg:inline">Guardar Borrador</span>
+          <span className="lg:hidden">Guardar</span>
         </button>
-        <button className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-2">
+        <button className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-lg hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-1 lg:order-3">
           <Send className="w-4 h-4" />
-          Cerrar Cumplido y Finalizar Viaje
+          <span className="hidden lg:inline">Cerrar Cumplido y Finalizar Viaje</span>
+          <span className="lg:hidden">Finalizar Viaje</span>
         </button>
       </div>
     </div>

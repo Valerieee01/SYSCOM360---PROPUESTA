@@ -3,20 +3,20 @@ import { Plus, Search, MapPin } from "lucide-react";
 export default function Remesas() {
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Gestión de Remesas
           </h1>
           <p className="text-gray-600">Control de remesas y seguimiento de carga</p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        <button className="w-full lg:w-auto flex items-center justify-center gap-2 px-4 lg:px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all">
           <Plus className="w-5 h-5" />
-          Nueva Remesa
+          <span>Nueva Remesa</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {[
           { label: "Activas", count: 32, color: "bg-blue-100" },
           { label: "En Tránsito", count: 18, color: "bg-purple-100" },

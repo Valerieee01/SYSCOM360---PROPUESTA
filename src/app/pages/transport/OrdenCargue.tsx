@@ -3,7 +3,7 @@ import { Plus, Search, Filter, Eye } from "lucide-react";
 export default function OrdenCargue() {
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Órdenes de Cargue
@@ -12,13 +12,14 @@ export default function OrdenCargue() {
             Gestión de órdenes de cargue y asignación de vehículos
           </p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        <button className="w-full lg:w-auto flex items-center justify-center gap-2 px-4 lg:px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all">
           <Plus className="w-5 h-5" />
-          Nueva Orden
+          <span className="hidden lg:inline">Nueva Orden</span>
+          <span className="lg:hidden">Nueva Orden</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {[
           { label: "Total", count: 32 },
           { label: "Pendientes", count: 12 },
@@ -45,7 +46,7 @@ export default function OrdenCargue() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <button className="flex items-center gap-2 px-4 py-2.5 lg:py-2 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all">
             <Filter className="w-5 h-5" />
             Filtros
           </button>

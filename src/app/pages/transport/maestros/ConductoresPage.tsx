@@ -216,9 +216,11 @@ export default function ConductoresPage({ onBack }: ConductoresPageProps) {
                   </select>
                 </div>
               </div>
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button onClick={closeModal} className="px-6 py-2 border rounded-lg hover:bg-gray-50">Cancelar</button>
-                <button className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2">
+              <div className="sticky bottom-0 left-0 right-0 bg-white lg:bg-transparent flex flex-col lg:flex-row justify-end gap-2 lg:gap-3 p-4 lg:p-0 lg:pt-4 border-t border-gray-200 -mx-4 lg:mx-0 -mb-4 lg:mb-0 shadow-lg lg:shadow-none">
+                <button onClick={closeModal} className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all font-medium order-2 lg:order-1">
+                  Cancelar
+                </button>
+                <button className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-1 lg:order-2">
                   <Save className="w-4 h-4" />
                   {isCreating ? "Crear" : "Guardar"}
                 </button>

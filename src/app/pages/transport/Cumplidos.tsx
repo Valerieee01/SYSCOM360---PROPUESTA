@@ -12,7 +12,7 @@ export default function Cumplidos() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {[
           { label: "Cumplidos Hoy", count: 8 },
           { label: "Esta Semana", count: 42 },

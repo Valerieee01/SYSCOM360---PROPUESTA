@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Lock, Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
-import logoFull from "../../assets/0638760b416ee7488ca6ef20ea955dc946a587db.png";
+import logoFull from "figma:asset/0638760b416ee7488ca6ef20ea955dc946a587db.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export default function Login() {
 
     // Simulación de validación (en producción, aquí iría la llamada al API)
     setTimeout(() => {
-      if (email === "admin@SyscomWeb.com" && password === "admin123") {
+      if (email === "admin@syscomweb.com" && password === "admin123") {
         // Login exitoso
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("user", JSON.stringify({
@@ -28,7 +28,7 @@ export default function Login() {
         }));
         navigate("/");
       } else {
-        setError("Credenciales incorrectas. Intenta con admin@SyscomWeb.com / admin123");
+        setError("Credenciales incorrectas. Intenta con admin@syscomweb.com / admin123");
         setIsLoading(false);
       }
     }, 1000);
@@ -155,7 +155,7 @@ export default function Login() {
               Credenciales de demostración:
             </p>
             <div className="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-700">
-              <p><strong>Email:</strong> admin@SyscomWeb.com</p>
+              <p><strong>Email:</strong> admin@syscomweb.com</p>
               <p><strong>Password:</strong> admin123</p>
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function Login() {
 
         {/* Footer */}
         <p className="text-center text-blue-200 text-sm mt-6">
-          © 2024 SyscomWeb. Todos los derechos reservados.
+          © 2024 Syscom web. Todos los derechos reservados.
         </p>
       </div>
     </div>
