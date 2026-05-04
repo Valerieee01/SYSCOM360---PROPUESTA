@@ -73,22 +73,33 @@ export default function CumplidoForm({
   const totalPago = remesas.reduce((sum, r) => sum + r.tarifaTabla, 0);
   
   // Valores adicionales
+  const [cuapl, setCuapl] = useState("1600600.00");
+  const [compensacion, setCompensacion] = useState("500000.00");
+  const [valorAdicionalCategoria, setValorAdicionalCategoria] = useState("0");
   const valorAdicionalCargues = 50000;
   const valorAdicionalDescargues = 30000;
   const valorAdicionalAPagar = 25000;
-  
-  const totalPagoFinal = totalPago + valorAdicionalCargues + valorAdicionalDescargues + valorAdicionalAPagar;
+  const [motivoPagoAdicional, setMotivoPagoAdicional] = useState("");
+  const [fechaEstrategiaDescuento, setFechaEstrategiaDescuento] = useState("");
+  const [compuestoContable, setCompuestoContable] = useState("");
+  const [codigoComplementario, setCodigoComplementario] = useState("");
+  const [nombreComplementario, setNombreComplementario] = useState("");
+  const [plazoPago, setPlazoPago] = useState("");
+  const [fechaPago, setFechaPago] = useState("");
+  const [comentarios, setComentarios] = useState("");
+
+  const totalPagoFinal = totalPago + valorAdicionalCargues + valorAdicionalDescargues + valorAdicionalAPagar + parseFloat(compensacion || "0") + parseFloat(valorAdicionalCategoria || "0");
 
   return (
     <div className="p-6 space-y-6">
       {/* Alerta de Automatización */}
-      <div className="bg-gradient-to-r from-green-50 to-teal-50 border-l-4 border-green-500 p-4 rounded-lg">
+      <div className="bg-gradient-to-r from-green-50 to-teal-50 border-l-4 border-green-500 p-4 rounded-lg hidden md:block">
         <div className="flex items-start gap-3">
           <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
           <div>
             <h4 className="font-semibold text-green-900 mb-1">Cumplido Automatizado - Último Paso del Proceso</h4>
             <p className="text-sm text-green-700">
-              Al seleccionar el manifiesto, todos los datos del viaje, vehículo, conductor y remesas se cargan automáticamente. 
+              Al seleccionar el manifiesto, todos los datos del viaje, vehículo, conductor y remesas se cargan automáticamente.
               Los totales se calculan en tiempo real. Solo confirma el tipo de cumplido y guarda.
             </p>
           </div>
@@ -96,7 +107,7 @@ export default function CumplidoForm({
       </div>
 
       {/* 1. Datos Básicos */}
-      <div className="bg-gradient-to-br from-teal-50 to-teal-100/30 rounded-xl p-6 border border-teal-200">
+      <div className="bg-gradient-to-br from-teal-50 to-teal-100/30 rounded-xl p-6 border border-teal-200 hidden md:block">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <ClipboardList className="w-5 h-5 text-teal-600" />
           Datos Básicos del Cumplido
@@ -155,17 +166,20 @@ export default function CumplidoForm({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               No. Manifiesto *
             </label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-              <option>Seleccione manifiesto...</option>
-              <option selected>MAN-2024-089 - Cali → Barranquilla</option>
-              <option>MAN-2024-088 - Bogotá → Medellín</option>
-              <option>MAN-2024-087 - Cartagena → Bogotá</option>
+            <select
+              defaultValue="MAN-2024-089"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            >
+              <option value="">Seleccione manifiesto...</option>
+              <option value="MAN-2024-089">MAN-2024-089 - Cali → Barranquilla</option>
+              <option value="MAN-2024-088">MAN-2024-088 - Bogotá → Medellín</option>
+              <option value="MAN-2024-087">MAN-2024-087 - Cartagena → Bogotá</option>
             </select>
           </div>
         </div>
 
         {/* Datos heredados del manifiesto */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200 hidden md:grid">
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1 text-xs">
               Compañía
@@ -226,7 +240,7 @@ export default function CumplidoForm({
       </div>
 
       {/* 3. Información Adicional / Configuración */}
-      <div className="bg-gradient-to-br from-purple-50 to-purple-100/30 rounded-xl p-6 border border-purple-200">
+      <div className="bg-gradient-to-br from-purple-50 to-purple-100/30 rounded-xl p-6 border border-purple-200 hidden md:block">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Building2 className="w-5 h-5 text-purple-600" />
           Información Adicional y Configuración
@@ -371,7 +385,7 @@ export default function CumplidoForm({
           Datos del Cumplido - Cierre del Viaje
         </h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tipo de Cumplido *
             </label>
@@ -383,7 +397,7 @@ export default function CumplidoForm({
               <option>Cumplido con Suspensión</option>
             </select>
           </div>
-          <div>
+          <div className="hidden md:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Motivo Suspensión (si aplica)
             </label>
@@ -396,7 +410,7 @@ export default function CumplidoForm({
               <option>Otro</option>
             </select>
           </div>
-          <div>
+          <div className="hidden md:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tipo de Suspensión (si aplica)
             </label>
@@ -407,12 +421,12 @@ export default function CumplidoForm({
               <option>Por Inspección</option>
             </select>
           </div>
-          <div></div>
-          
+          <div className="hidden md:block"></div>
+
           {/* Valores Adicionales */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Valor Adicional Cargues (COP)
+              Valor Adicional Cargues
             </label>
             <input
               type="number"
@@ -422,7 +436,7 @@ export default function CumplidoForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Valor Adicional Descargues (COP)
+              Valor Adicional Descargues
             </label>
             <input
               type="number"
@@ -430,9 +444,9 @@ export default function CumplidoForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
             />
           </div>
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Valor Adicional a Pagar (COP)
+              Valor Adicional a Pagar
             </label>
             <input
               type="number"
@@ -440,6 +454,219 @@ export default function CumplidoForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
             />
           </div>
+        </div>
+      </div>
+
+      {/* 5.5 Información Adicional de Pago */}
+      <div className="bg-gradient-to-br from-teal-50 to-teal-100/30 rounded-xl p-6 border border-teal-200">
+        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <DollarSign className="w-5 h-5 text-teal-600" />
+          Información Adicional de Pago
+        </h3>
+
+        {/* Formulario de campos */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              CUAPL-00 (Referencia)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={cuapl}
+              onChange={(e) => setCuapl(e.target.value)}
+              placeholder="Ingrese monto de referencia"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Montos de Compensación
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={compensacion}
+              onChange={(e) => setCompensacion(e.target.value)}
+              placeholder="Ingrese compensación"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Valor Adicional Categoría
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={valorAdicionalCategoria}
+              onChange={(e) => setValorAdicionalCategoria(e.target.value)}
+              placeholder="Ingrese valor adicional"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Motivo Pago Adicional
+            </label>
+            <input
+              type="text"
+              value={motivoPagoAdicional}
+              onChange={(e) => setMotivoPagoAdicional(e.target.value)}
+              placeholder="Descripción del motivo"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Fecha Estrategia Descuento
+            </label>
+            <input
+              type="date"
+              value={fechaEstrategiaDescuento}
+              onChange={(e) => setFechaEstrategiaDescuento(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Compuesto Contable
+            </label>
+            <input
+              type="text"
+              value={compuestoContable}
+              onChange={(e) => setCompuestoContable(e.target.value)}
+              placeholder="Código contable"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Código Complementario
+            </label>
+            <input
+              type="text"
+              value={codigoComplementario}
+              onChange={(e) => setCodigoComplementario(e.target.value)}
+              placeholder="Código complementario"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Nombre Complementario
+            </label>
+            <input
+              type="text"
+              value={nombreComplementario}
+              onChange={(e) => setNombreComplementario(e.target.value)}
+              placeholder="Nombre complementario"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Plazo de Pago (días)
+            </label>
+            <input
+              type="number"
+              value={plazoPago}
+              onChange={(e) => setPlazoPago(e.target.value)}
+              placeholder="Ej: 30 días"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Fecha de Pago
+            </label>
+            <input
+              type="date"
+              value={fechaPago}
+              onChange={(e) => setFechaPago(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
+            />
+            <p className="text-xs text-gray-500 mt-1">Formato: DD-MM-YYYY</p>
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Comentarios Adicionales
+            </label>
+            <textarea
+              rows={3}
+              value={comentarios}
+              onChange={(e) => setComentarios(e.target.value)}
+              placeholder="Ingrese comentarios adicionales sobre el pago..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none bg-white placeholder-gray-400"
+            ></textarea>
+          </div>
+        </div>
+
+        {/* Tabla de Resumen de Pagos Adicionales */}
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-teal-100 border-b-2 border-teal-300">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Concepto</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Valor</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-teal-200">
+              <tr className="hover:bg-teal-50 transition-colors">
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">CUAPL-00</td>
+                <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900">
+                  ${parseFloat(cuapl || "0").toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+              </tr>
+              <tr className="hover:bg-teal-50 transition-colors">
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">Montos de Compensación</td>
+                <td className="px-4 py-3 text-sm text-right font-semibold text-teal-700">
+                  ${parseFloat(compensacion || "0").toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+              </tr>
+              <tr className="hover:bg-teal-50 transition-colors">
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">Valor Adicional Categoría</td>
+                <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900">
+                  ${parseFloat(valorAdicionalCategoria || "0").toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+              </tr>
+              <tr className="hover:bg-teal-50 transition-colors">
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">Valor Adicional Descargues</td>
+                <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900">
+                  ${valorAdicionalDescargues.toLocaleString("es-CO")}
+                </td>
+              </tr>
+              <tr className="hover:bg-teal-50 transition-colors">
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">Valor Adicional a Pagar</td>
+                <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900">
+                  ${valorAdicionalAPagar.toLocaleString("es-CO")}
+                </td>
+              </tr>
+              <tr className="hover:bg-teal-50 transition-colors">
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">Motivo</td>
+                <td className="px-4 py-3 text-sm text-right text-gray-700 italic">
+                  {motivoPagoAdicional || "Sin especificar"}
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr className="bg-teal-200 border-t-2 border-teal-400 font-bold">
+                <td className="px-4 py-3 text-sm text-gray-900">TOTAL PAGOS ADICIONALES</td>
+                <td className="px-4 py-3 text-sm text-right text-teal-800">
+                  ${(parseFloat(cuapl || "0") + parseFloat(compensacion || "0") + parseFloat(valorAdicionalCategoria || "0") + valorAdicionalDescargues + valorAdicionalAPagar).toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div className="mt-4 p-3 bg-teal-100 border border-teal-300 rounded-lg">
+          <p className="text-sm text-teal-800">
+            <AlertCircle className="w-4 h-4 inline mr-1" />
+            <strong>Información de Registro:</strong> Los valores adicionales se suman al total de pago del conductor.
+            {fechaPago && ` Fecha de pago programada: ${new Date(fechaPago).toLocaleDateString('es-CO')}.`}
+            {plazoPago && ` Plazo: ${plazoPago} días.`}
+          </p>
         </div>
       </div>
 
@@ -509,6 +736,14 @@ export default function CumplidoForm({
               <span>+ Valor adicional a pagar:</span>
               <span className="font-medium text-green-700">+${valorAdicionalAPagar.toLocaleString('es-CO')}</span>
             </div>
+            <div className="flex justify-between">
+              <span>+ Compensación:</span>
+              <span className="font-medium text-teal-700">+${parseFloat(compensacion || "0").toLocaleString('es-CO')}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>+ Valor adicional categoría:</span>
+              <span className="font-medium text-teal-700">+${parseFloat(valorAdicionalCategoria || "0").toLocaleString('es-CO')}</span>
+            </div>
             <div className="pt-2 border-t-2 border-indigo-400 flex justify-between font-bold text-base">
               <span>Total a pagar al conductor:</span>
               <span className="text-blue-700">${totalPagoFinal.toLocaleString('es-CO')}</span>
@@ -532,7 +767,7 @@ export default function CumplidoForm({
       </div>
 
       {/* 7. Observaciones */}
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100/30 rounded-xl p-6 border border-gray-200">
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100/30 rounded-xl p-6 border border-gray-200 hidden md:block">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <MessageSquare className="w-5 h-5 text-gray-600" />
           Observaciones del Cumplido
@@ -550,7 +785,7 @@ export default function CumplidoForm({
       </div>
 
       {/* Información del Sistema */}
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100/30 rounded-xl p-6 border border-slate-200">
+      <div className="bg-gradient-to-br from-slate-50 to-slate-100/30 rounded-xl p-6 border border-slate-200 hidden md:block">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-slate-600" />
           Información del Sistema

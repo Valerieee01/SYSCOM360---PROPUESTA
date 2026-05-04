@@ -20,6 +20,16 @@ import {
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
+import { useFormValidation } from "../../hooks/useFormValidation";
+import { ValidationAlert, FieldError, SuccessMessage } from "../../components/ValidationAlert";
+import {
+  validateRemesa,
+  validateGuias,
+  validateContenedores,
+  validateLogisticsTimes,
+  canModifyRemesa,
+} from "../../utils";
+import type { Remesa, OperationType, Guia, Contenedor, UserLevel } from "../../types";
 
 interface RemesaFormProps {
   selectedDocument: {
@@ -38,27 +48,159 @@ export default function RemesaForm({
   isCreating,
   onClose,
 }: RemesaFormProps) {
-  const [guias, setGuias] = useState([{ id: 1, numero: "" }]);
-  const [contenedores, setContenedores] = useState([{ id: 1, tipo: "", numero: "", precinto: "" }]);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [guias, setGuias] = useState<Guia[]>([{ id: "1", numero: "" }]);
+  const [contenedores, setContenedores] = useState<Partial<Contenedor>[]>([
+    { id: "1", tipo: "", numero: "", tipoPrecinto: "" }
+  ]);
+  const userLevel: UserLevel = 3; // This would come from auth context
+
+  // Form validation
+  const remesaForm = useFormValidation<Partial<Remesa>>({
+    initialValues: {
+      numero: `REM-2026-${String(Math.floor(Math.random() * 1000)).padStart(6, '0')}`,
+      compania: "SYSCOM 360 S.A.S.",
+      fecha: new Date(),
+      tipoRemesa: "",
+      tipoOperacion: "" as OperationType,
+      tipoRuta: "INTERURBANO",
+      remitenteId: "",
+      sedeOrigenId: "",
+      destinatarioId: "",
+      sedeDestinoId: "",
+      propietarioCargaId: "",
+      rutaId: "",
+      distanciaKm: 0,
+      tiempoEstimadoHrs: 0,
+      vehiculoId: "",
+      conductorPrincipalId: "",
+      pactoTiempos: false,
+      estado: "BORRADOR",
+      creadoPor: "current-user",
+      fechaCreacion: new Date(),
+    },
+    validate: (values) => {
+      // First validate basic remesa
+      const basicValidation = validateRemesa(values, userLevel);
+
+      if (!basicValidation.valid) {
+        return basicValidation;
+      }
+
+      // Validate guias
+      const guiasValidation = validateGuias(guias);
+      if (!guiasValidation.valid) {
+        return guiasValidation;
+      }
+
+      // Validate contenedores if needed
+      if (values.tipoOperacion === 'CONTENEDOR' || values.tipoOperacion === 'CONT_VACIO') {
+        const contenedoresValidation = validateContenedores(
+          contenedores as Array<{ tipo: string; numero: string; tipoPrecinto: string }>,
+          values.tipoOperacion
+        );
+        if (!contenedoresValidation.valid) {
+          return contenedoresValidation;
+        }
+      }
+
+      // Validate logistics times if set
+      if (values.companiaParaCargue && values.companiaParaDescargue) {
+        const timesValidation = validateLogisticsTimes(
+          values.companiaParaCargue,
+          values.companiaParaDescargue,
+          values.pactoTiempos || false,
+          values.tiempoTotalCargueHrs,
+          values.tiempoTotalDescargueHrs
+        );
+        if (!timesValidation.valid) {
+          return timesValidation;
+        }
+      }
+
+      // Check if can modify (if has radicado)
+      const modifyCheck = canModifyRemesa(values.radicadoRNDC);
+      if (!modifyCheck.valid) {
+        return modifyCheck;
+      }
+
+      return { valid: true, errors: {} };
+    },
+    onSubmit: async (values) => {
+      console.log("Guardando remesa...", {
+        ...values,
+        guias,
+        contenedores,
+      });
+      setShowSuccessMessage(true);
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+    },
+  });
 
   const agregarGuia = () => {
-    setGuias([...guias, { id: guias.length + 1, numero: "" }]);
+    setGuias([...guias, { id: String(guias.length + 1), numero: "" }]);
   };
 
-  const eliminarGuia = (id: number) => {
-    setGuias(guias.filter((g) => g.id !== id));
+  const eliminarGuia = (id: string) => {
+    if (guias.length > 1) {
+      setGuias(guias.filter((g) => g.id !== id));
+    }
+  };
+
+  const updateGuia = (id: string, numero: string) => {
+    setGuias(guias.map((g) => g.id === id ? { ...g, numero } : g));
   };
 
   const agregarContenedor = () => {
-    setContenedores([...contenedores, { id: contenedores.length + 1, tipo: "", numero: "", precinto: "" }]);
+    setContenedores([
+      ...contenedores,
+      { id: String(contenedores.length + 1), tipo: "", numero: "", tipoPrecinto: "" }
+    ]);
   };
 
-  const eliminarContenedor = (id: number) => {
-    setContenedores(contenedores.filter((c) => c.id !== id));
+  const eliminarContenedor = (id: string) => {
+    if (contenedores.length > 1) {
+      setContenedores(contenedores.filter((c) => c.id !== id));
+    }
+  };
+
+  const updateContenedor = (id: string, field: string, value: string) => {
+    setContenedores(contenedores.map((c) =>
+      c.id === id ? { ...c, [field]: value } : c
+    ));
   };
 
   return (
     <div className="p-6 space-y-6">
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <SuccessMessage
+          message="Remesa guardada exitosamente"
+          onClose={() => setShowSuccessMessage(false)}
+        />
+      )}
+
+      {/* Validation Alert */}
+      {remesaForm.hasErrors && (
+        <ValidationAlert
+          type="error"
+          title="Campos obligatorios incompletos"
+          message="Por favor complete todos los campos marcados con asterisco (*) antes de guardar."
+          errors={remesaForm.errors}
+        />
+      )}
+
+      {/* RNDC Lock Warning */}
+      {remesaForm.values.radicadoRNDC && (
+        <ValidationAlert
+          type="warning"
+          title="Remesa radicada en RNDC"
+          message="Esta remesa ha sido radicada en el RNDC y no puede ser modificada."
+        />
+      )}
+
       {/* 1. Datos Básicos / Encabezado de Remesa */}
       <div className="bg-gradient-to-br from-purple-50 to-purple-100/30 rounded-xl p-6 border border-purple-200">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -66,26 +208,34 @@ export default function RemesaForm({
           Datos Básicos de la Remesa
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               No. Remesa
             </label>
             <input
               type="text"
-              defaultValue={selectedDocument.numero || "REM-2024-001"}
-              disabled={!isCreating}
+              value={remesaForm.values.numero}
+              disabled
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Compañía (Cía)
             </label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white">
-              <option>SYSCOM 360 S.A.S.</option>
-              <option>Transporte Nacional</option>
-              <option>Logística Express</option>
+            <select
+              value={remesaForm.values.compania}
+              onChange={(e) => remesaForm.handleChange("compania", e.target.value)}
+              onBlur={() => remesaForm.handleBlur("compania")}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                remesaForm.errors.compania ? "border-red-500 bg-red-50" : "border-gray-300"
+              }`}
+            >
+              <option value="SYSCOM 360 S.A.S.">SYSCOM 360 S.A.S.</option>
+              <option value="Transporte Nacional">Transporte Nacional</option>
+              <option value="Logística Express">Logística Express</option>
             </select>
+            <FieldError error={remesaForm.errors.compania} show={remesaForm.touched.compania} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -140,7 +290,7 @@ export default function RemesaForm({
               <option>Distribución</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Origen Transbordo *
             </label>
@@ -160,7 +310,7 @@ export default function RemesaForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Lugar Pago Flete
             </label>
@@ -191,7 +341,7 @@ export default function RemesaForm({
               <option>Global Logistics Ltd - 700345678</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               NIT / Cédula
             </label>
@@ -212,7 +362,7 @@ export default function RemesaForm({
               <option>Almacén Sur - Cali</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Dirección Sede Origen
             </label>
@@ -235,7 +385,7 @@ export default function RemesaForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Nombre Destinatario *
+              Destinatario *
             </label>
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white">
               <option>Seleccione destinatario...</option>
@@ -255,7 +405,7 @@ export default function RemesaForm({
               <option>Almacén Norte - Santa Marta</option>
             </select>
           </div>
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Dirección Sede Destino
             </label>
@@ -279,7 +429,7 @@ export default function RemesaForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Generador Carga
+              Propietario de la Carga
             </label>
             <select
               defaultValue="remitente"
@@ -304,7 +454,7 @@ export default function RemesaForm({
       </div>
 
       {/* 5. Datos de Ruta */}
-      <div className="bg-gradient-to-br from-cyan-50 to-cyan-100/30 rounded-xl p-6 border border-cyan-200">
+      <div className="bg-gradient-to-br from-cyan-50 to-cyan-100/30 rounded-xl p-6 border border-cyan-200 hidden lg:block">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Route className="w-5 h-5 text-cyan-600" />
           Datos de Ruta
@@ -369,7 +519,7 @@ export default function RemesaForm({
                 <option>GHI-789 (Dobletroque)</option>
               </select>
             </div>
-            <div>
+            <div className="hidden lg:block">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Remolque *
               </label>
@@ -380,7 +530,7 @@ export default function RemesaForm({
                 <option>REM-333 (Plataforma)</option>
               </select>
             </div>
-            <div>
+            <div className="hidden lg:block">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Nombre Conductor *
               </label>
@@ -391,7 +541,7 @@ export default function RemesaForm({
                 <option>Carlos Rodríguez</option>
               </select>
             </div>
-            <div>
+            <div className="hidden lg:block">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Documento Conductor Principal
               </label>
@@ -406,7 +556,7 @@ export default function RemesaForm({
         </div>
 
         {/* Vehículo Secundario */}
-        <div className="pt-4 border-t border-indigo-200">
+        <div className="pt-4 border-t border-indigo-200 hidden lg:block">
           <h4 className="text-sm font-semibold text-indigo-700 mb-3">Vehículo Secundario (Opcional)</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -466,7 +616,7 @@ export default function RemesaForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Código de la Mercancía *
+              Código Mercancía *
             </label>
             <input
               type="text"
@@ -484,7 +634,7 @@ export default function RemesaForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
             />
           </div>
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Descripción de la Mercancía *
             </label>
@@ -504,7 +654,7 @@ export default function RemesaForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Ud. Medida
             </label>
@@ -527,7 +677,7 @@ export default function RemesaForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ud. Tarifa Tabla
+              Unidad Medida Tarifa Tabla
             </label>
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white">
               <option>COP</option>
@@ -537,7 +687,7 @@ export default function RemesaForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Vr Cobro
+              Tarifa Cobro
             </label>
             <input
               type="number"
@@ -547,7 +697,7 @@ export default function RemesaForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ud. Tarifa Cobro
+              Unidad Medida Tarifa Cobro
             </label>
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white">
               <option>COP</option>
@@ -584,7 +734,7 @@ export default function RemesaForm({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Ud. de Medida (Volumen)
+                Unidad Medida Volumen
               </label>
               <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white">
                 <option>Metros cúbicos (m³)</option>
@@ -592,7 +742,7 @@ export default function RemesaForm({
                 <option>Litros (L)</option>
               </select>
             </div>
-            <div>
+            <div className="hidden lg:block">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Referencia 1
               </label>
@@ -625,7 +775,7 @@ export default function RemesaForm({
             Mercancía Peligrosa (si aplica)
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="hidden lg:block">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Naturaleza
               </label>
@@ -639,7 +789,7 @@ export default function RemesaForm({
                 <option>Corrosivos</option>
               </select>
             </div>
-            <div>
+            <div className="hidden lg:block">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Código UN
               </label>
@@ -649,7 +799,7 @@ export default function RemesaForm({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
               />
             </div>
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 hidden lg:block">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Descripción Residuo Peligroso
               </label>
@@ -661,7 +811,7 @@ export default function RemesaForm({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Corrientes de Residuos Peligrosos *
+                Código Residuos *
               </label>
               <input
                 type="text"
@@ -671,7 +821,7 @@ export default function RemesaForm({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Desagregación de Corrientes *
+                Código Desagregación *
               </label>
               <input
                 type="text"
@@ -708,13 +858,21 @@ export default function RemesaForm({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tipo Contenedor *
                 </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white text-sm">
-                  <option>20' Standard</option>
-                  <option>40' Standard</option>
-                  <option>40' High Cube</option>
-                  <option>Refrigerado 20'</option>
-                  <option>Refrigerado 40'</option>
+                <select
+                  value={contenedor.tipo}
+                  onChange={(e) => updateContenedor(contenedor.id!, "tipo", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm ${
+                    remesaForm.errors[`contenedor_tipo_${index}`] ? "border-red-500 bg-red-50" : "border-gray-300"
+                  }`}
+                >
+                  <option value="">Seleccione...</option>
+                  <option value="20' Standard">20' Standard</option>
+                  <option value="40' Standard">40' Standard</option>
+                  <option value="40' High Cube">40' High Cube</option>
+                  <option value="Refrigerado 20'">Refrigerado 20'</option>
+                  <option value="Refrigerado 40'">Refrigerado 40'</option>
                 </select>
+                <FieldError error={remesaForm.errors[`contenedor_tipo_${index}`]} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -722,25 +880,39 @@ export default function RemesaForm({
                 </label>
                 <input
                   type="text"
+                  value={contenedor.numero}
+                  onChange={(e) => updateContenedor(contenedor.id!, "numero", e.target.value)}
                   placeholder="CONT-123456"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white text-sm"
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm ${
+                    remesaForm.errors[`contenedor_numero_${index}`] ? "border-red-500 bg-red-50" : "border-gray-300"
+                  }`}
                 />
+                <FieldError error={remesaForm.errors[`contenedor_numero_${index}`]} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tipo Precinto *
                 </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white text-sm">
-                  <option>Precinto de Seguridad</option>
-                  <option>Precinto Aduanero</option>
-                  <option>Precinto Electrónico</option>
-                  <option>Precinto Metálico</option>
+                <select
+                  value={contenedor.tipoPrecinto}
+                  onChange={(e) => updateContenedor(contenedor.id!, "tipoPrecinto", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm ${
+                    remesaForm.errors[`contenedor_precinto_${index}`] ? "border-red-500 bg-red-50" : "border-gray-300"
+                  }`}
+                >
+                  <option value="">Seleccione...</option>
+                  <option value="Precinto de Seguridad">Precinto de Seguridad</option>
+                  <option value="Precinto Aduanero">Precinto Aduanero</option>
+                  <option value="Precinto Electrónico">Precinto Electrónico</option>
+                  <option value="Precinto Metálico">Precinto Metálico</option>
                 </select>
+                <FieldError error={remesaForm.errors[`contenedor_precinto_${index}`]} />
               </div>
               <div className="flex items-end">
                 {contenedores.length > 1 && (
                   <button
-                    onClick={() => eliminarContenedor(contenedor.id)}
+                    type="button"
+                    onClick={() => eliminarContenedor(contenedor.id!)}
                     className="w-full px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors text-sm flex items-center justify-center gap-2"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -750,6 +922,9 @@ export default function RemesaForm({
               </div>
             </div>
           ))}
+          {remesaForm.errors.contenedores && (
+            <FieldError error={remesaForm.errors.contenedores} />
+          )}
         </div>
       </div>
 
@@ -772,7 +947,7 @@ export default function RemesaForm({
           {guias.map((guia, index) => (
             <div
               key={guia.id}
-              className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-white rounded-lg border border-pink-200"
+              className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-white rounded-lg border border-pink-200"
             >
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -780,13 +955,29 @@ export default function RemesaForm({
                 </label>
                 <input
                   type="text"
+                  value={guia.numero}
+                  onChange={(e) => updateGuia(guia.id, e.target.value)}
                   placeholder="GUIA-2024-001"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white"
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent ${
+                    remesaForm.errors[`guia_${index}`] ? "border-red-500 bg-red-50" : "border-gray-300"
+                  }`}
                 />
+                <FieldError error={remesaForm.errors[`guia_${index}`]} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Compañía
+                </label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white text-sm">
+                  <option>SYSCOM 360 S.A.S.</option>
+                  <option>Transporte Nacional</option>
+                  <option>Logística Express</option>
+                </select>
               </div>
               <div className="flex items-end">
                 {guias.length > 1 && (
                   <button
+                    type="button"
                     onClick={() => eliminarGuia(guia.id)}
                     className="w-full px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors text-sm flex items-center justify-center gap-2"
                   >
@@ -797,6 +988,9 @@ export default function RemesaForm({
               </div>
             </div>
           ))}
+          {remesaForm.errors.guias && (
+            <FieldError error={remesaForm.errors.guias} />
+          )}
         </div>
       </div>
 
@@ -809,7 +1003,7 @@ export default function RemesaForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Compañía para Cargue *
+              Fecha y Hora Cita Cargue *
             </label>
             <input
               type="datetime-local"
@@ -818,20 +1012,20 @@ export default function RemesaForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Compañía para Descargue *
+              Fecha y Hora Cita Descargue *
             </label>
             <input
               type="datetime-local"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white"
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
               <input type="checkbox" className="w-4 h-4 text-violet-600 rounded" />
               Pactó Tiempos
             </label>
           </div>
-          <div></div>
+          <div className="hidden lg:block"></div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tiempo Total Cargue (hrs)
@@ -864,9 +1058,9 @@ export default function RemesaForm({
           Totales y Comentarios
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Comentarios
+              Observaciones
             </label>
             <textarea
               rows={4}
@@ -874,7 +1068,7 @@ export default function RemesaForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none bg-white"
             ></textarea>
           </div>
-          <div>
+          <div className="md:col-span-2 hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Información Adicional
             </label>
@@ -886,7 +1080,7 @@ export default function RemesaForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Trayectos Vacíos
+              Trayecto Vacío 1
             </label>
             <input
               type="number"
@@ -894,7 +1088,17 @@ export default function RemesaForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent bg-white"
             />
           </div>
-          <div className="flex items-end">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Trayecto Vacío 2
+            </label>
+            <input
+              type="number"
+              placeholder="0"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent bg-white"
+            />
+          </div>
+          <div className="flex items-end hidden lg:block">
             <div className="w-full p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm font-semibold text-blue-900 mb-2">Totales Calculados</p>
               <div className="space-y-1 text-sm text-blue-800">
@@ -919,21 +1123,27 @@ export default function RemesaForm({
       {/* Botones de Acción */}
       <div className="sticky bottom-0 left-0 right-0 bg-white lg:bg-transparent flex flex-col lg:flex-row items-stretch lg:items-center justify-end gap-2 lg:gap-3 p-4 lg:p-0 lg:pt-4 border-t border-gray-200 -mx-4 lg:mx-0 -mb-4 lg:mb-0 shadow-lg lg:shadow-none">
         <button
+          type="button"
           onClick={onClose}
-          className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-3 lg:order-1"
+          disabled={remesaForm.isSubmitting}
+          className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-3 lg:order-1 disabled:opacity-50"
         >
           <X className="w-4 h-4" />
           <span>Cancelar</span>
         </button>
-        <button className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-2 lg:order-2">
+        <button
+          type="button"
+          onClick={() => remesaForm.handleSubmit()}
+          disabled={remesaForm.isSubmitting || !!remesaForm.values.radicadoRNDC}
+          className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-1 lg:order-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           <Save className="w-4 h-4" />
-          <span className="hidden lg:inline">Guardar Borrador</span>
-          <span className="lg:hidden">Guardar</span>
-        </button>
-        <button className="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 font-medium order-1 lg:order-3">
-          <Send className="w-4 h-4" />
-          <span className="hidden lg:inline">Guardar y Enviar Remesa</span>
-          <span className="lg:hidden">Enviar Remesa</span>
+          <span className="hidden lg:inline">
+            {remesaForm.isSubmitting ? "Guardando..." : "Guardar Remesa"}
+          </span>
+          <span className="lg:hidden">
+            {remesaForm.isSubmitting ? "Guardando..." : "Guardar"}
+          </span>
         </button>
       </div>
     </div>

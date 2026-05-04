@@ -91,13 +91,13 @@ export default function ManifiestoForm({
   return (
     <div className="p-6 space-y-6">
       {/* Alerta de Automatización */}
-      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500 p-4 rounded-lg">
+      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500 p-4 rounded-lg hidden lg:block">
         <div className="flex items-start gap-3">
           <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div>
             <h4 className="font-semibold text-blue-900 mb-1">Manifiesto Automatizado</h4>
             <p className="text-sm text-blue-700">
-              Los datos de vehículo, conductor y ruta se heredan automáticamente de la Orden de Cargue. 
+              Los datos de vehículo, conductor y ruta se heredan automáticamente de la Orden de Cargue.
               Los totales se calculan automáticamente desde las Remesas asociadas.
             </p>
           </div>
@@ -111,7 +111,7 @@ export default function ManifiestoForm({
           Datos Básicos del Manifiesto
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               No. Manifiesto *
             </label>
@@ -123,7 +123,7 @@ export default function ManifiestoForm({
             />
             <p className="text-xs text-gray-500 mt-1">Autogenerado por el sistema</p>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Compañía (Cía) *
             </label>
@@ -135,7 +135,7 @@ export default function ManifiestoForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tipo de Manifiesto *
+              Tipo Manifiesto *
             </label>
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white">
               <option>Manifiesto de Carga</option>
@@ -157,16 +157,25 @@ export default function ManifiestoForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Fecha de Creación
+              Fecha Despacho
             </label>
             <input
               type="date"
               defaultValue={selectedDocument.fecha || "2024-03-16"}
-              disabled
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Hora Despacho
+            </label>
+            <input
+              type="time"
+              defaultValue="10:30"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
+            />
+          </div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Estado del Manifiesto
             </label>
@@ -224,14 +233,17 @@ export default function ManifiestoForm({
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     No. Remesa *
                   </label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm">
-                    <option>Seleccione remesa...</option>
-                    <option selected={remesa.numero === "REM-2024-128"}>REM-2024-128</option>
-                    <option>REM-2024-129</option>
-                    <option>REM-2024-130</option>
+                  <select
+                    value={remesa.numero || ""}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm"
+                  >
+                    <option value="">Seleccione remesa...</option>
+                    <option value="REM-2024-128">REM-2024-128</option>
+                    <option value="REM-2024-129">REM-2024-129</option>
+                    <option value="REM-2024-130">REM-2024-130</option>
                   </select>
                 </div>
-                <div>
+                <div className="hidden lg:block">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Cliente
                   </label>
@@ -243,7 +255,7 @@ export default function ManifiestoForm({
                     placeholder="Se autocompleta"
                   />
                 </div>
-                <div>
+                <div className="hidden lg:block">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Origen → Destino
                   </label>
@@ -255,7 +267,7 @@ export default function ManifiestoForm({
                     placeholder="Se autocompleta"
                   />
                 </div>
-                <div>
+                <div className="hidden lg:block">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Valor (COP)
                   </label>
@@ -268,8 +280,8 @@ export default function ManifiestoForm({
                   />
                 </div>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 hidden lg:grid">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Descripción Mercancía
@@ -335,7 +347,7 @@ export default function ManifiestoForm({
       </div>
 
       {/* 3. Datos Heredados de Orden de Cargue */}
-      <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/30 rounded-xl p-6 border border-indigo-200">
+      <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/30 rounded-xl p-6 border border-indigo-200 hidden lg:block">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Truck className="w-5 h-5 text-indigo-600" />
           Vehículo y Conductor (Heredado de Orden de Cargue)
@@ -397,9 +409,9 @@ export default function ManifiestoForm({
               disabled
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
             />
-            <p className="text-xs text-gray-500 mt-1">Heredado desde la Orden de Cargue</p>
+            <p className="text-xs text-gray-500 mt-1 hidden lg:block">Heredado desde la Orden de Cargue</p>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tipo de Ruta
             </label>
@@ -410,7 +422,7 @@ export default function ManifiestoForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Distancia (km)
             </label>
@@ -421,7 +433,7 @@ export default function ManifiestoForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tiempo Estimado
             </label>
@@ -432,7 +444,7 @@ export default function ManifiestoForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Lugar Pago Flete
             </label>
@@ -453,14 +465,14 @@ export default function ManifiestoForm({
           Trayectos y Transbordo (Opcional)
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
               <input type="checkbox" className="w-4 h-4 text-amber-600 rounded" />
               Tiene Transbordo
             </label>
           </div>
-          <div></div>
-          <div>
+          <div className="hidden lg:block"></div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Municipio Origen
             </label>
@@ -472,12 +484,13 @@ export default function ManifiestoForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Municipio Destino
+              Municipio Intermedio
             </label>
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white">
-              <option>Barranquilla (Atlántico)</option>
-              <option>Cartagena (Bolívar)</option>
-              <option>Santa Marta (Magdalena)</option>
+              <option>Ninguno</option>
+              <option>Medellín (Antioquia)</option>
+              <option>Bucaramanga (Santander)</option>
+              <option>Pereira (Risaralda)</option>
             </select>
           </div>
           <div>
@@ -501,7 +514,7 @@ export default function ManifiestoForm({
           Costos del Viaje
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Costo del Viaje *
             </label>
@@ -513,7 +526,7 @@ export default function ManifiestoForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Municipio ICA *
+              Municipio % ICA *
             </label>
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white">
               <option>Barranquilla (0.966%)</option>
@@ -522,7 +535,7 @@ export default function ManifiestoForm({
               <option>Cali (1.000%)</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Costo Trayecto 1
             </label>
@@ -534,7 +547,7 @@ export default function ManifiestoForm({
             />
             <p className="text-xs text-gray-500 mt-1">Calculado automáticamente</p>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Costo Trayecto 2
             </label>
@@ -546,7 +559,7 @@ export default function ManifiestoForm({
             />
             <p className="text-xs text-gray-500 mt-1">Calculado automáticamente</p>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Costo Trayecto Vacío 1
             </label>
@@ -557,7 +570,7 @@ export default function ManifiestoForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Costo Trayecto Vacío 2
             </label>
@@ -639,7 +652,7 @@ export default function ManifiestoForm({
       </div>
 
       {/* 8. Comentarios y Firma Electrónica */}
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100/30 rounded-xl p-6 border border-gray-200">
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100/30 rounded-xl p-6 border border-gray-200 hidden lg:block">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <MessageSquare className="w-5 h-5 text-gray-600" />
           Comentarios y Firma Electrónica
@@ -668,7 +681,7 @@ export default function ManifiestoForm({
       </div>
 
       {/* 9. Información del Sistema */}
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100/30 rounded-xl p-6 border border-slate-200">
+      <div className="bg-gradient-to-br from-slate-50 to-slate-100/30 rounded-xl p-6 border border-slate-200 hidden lg:block">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-slate-600" />
           Información del Sistema

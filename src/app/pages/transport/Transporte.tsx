@@ -53,10 +53,10 @@ interface Document {
 
 const documentTypes = [
   { name: "Pedidos", icon: FileText, color: "blue" },
-  { name: "Órdenes de Cargue", icon: Package, color: "green" },
+  { name: "Órdenes de Cargue", icon: Package, color: "yellow" },
   { name: "Remesas", icon: Truck, color: "purple" },
   { name: "Manifiestos", icon: FileCheck, color: "orange" },
-  { name: "Anticipos", icon: DollarSign, color: "emerald" },
+  { name: "Anticipos", icon: DollarSign, color: "cyan" },
   { name: "Cumplidos", icon: ClipboardCheck, color: "teal" },
 ];
 
@@ -161,11 +161,6 @@ export default function Transporte() {
     }
   };
 
-  const getTypeColor = (type: string) => {
-    const docType = documentTypes.find((dt) => dt.name === type);
-    return docType?.color || "gray";
-  };
-
   const handleCreateNew = (type: DocumentType) => {
     setSelectedDocument({
       id: "",
@@ -225,237 +220,244 @@ export default function Transporte() {
 
       {/* Document Type Cards - Create Buttons */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 lg:hidden">
-          Crear Documento
-        </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 lg:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
           {documentTypes.map((docType) => {
             const Icon = docType.icon;
             const count = mockDocuments.filter((d) => d.type === docType.name).length;
 
-            // Inline color classes to avoid Tailwind purging
-            const colorClasses = {
-              blue: { border: 'border-blue-200 hover:border-blue-400', bg: 'from-blue-500 to-blue-600', text: 'text-blue-600' },
-              green: { border: 'border-green-200 hover:border-green-400', bg: 'from-green-500 to-green-600', text: 'text-green-600' },
-              purple: { border: 'border-purple-200 hover:border-purple-400', bg: 'from-purple-500 to-purple-600', text: 'text-purple-600' },
-              orange: { border: 'border-orange-200 hover:border-orange-400', bg: 'from-orange-500 to-orange-600', text: 'text-orange-600' },
-              emerald: { border: 'border-emerald-200 hover:border-emerald-400', bg: 'from-emerald-500 to-emerald-600', text: 'text-emerald-600' },
-              teal: { border: 'border-teal-200 hover:border-teal-400', bg: 'from-teal-500 to-teal-600', text: 'text-teal-600' },
+            // Button color mappings based on image
+            const buttonColors = {
+              blue: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
+              yellow: 'bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600',
+              purple: 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
+              orange: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
+              cyan: 'bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-500 hover:to-cyan-600',
+              teal: 'bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700',
             };
 
-            const colors = colorClasses[docType.color as keyof typeof colorClasses] || colorClasses.blue;
+            const iconBgColors = {
+              blue: 'bg-blue-50',
+              yellow: 'bg-yellow-50',
+              purple: 'bg-purple-50',
+              orange: 'bg-orange-50',
+              cyan: 'bg-cyan-50',
+              teal: 'bg-cyan-50',
+            };
+
+            const iconColors = {
+              blue: 'text-blue-500',
+              yellow: 'text-yellow-500',
+              purple: 'text-purple-500',
+              orange: 'text-orange-500',
+              cyan: 'text-cyan-500',
+              teal: 'text-cyan-500',
+            };
+
+            const buttonColor = buttonColors[docType.color as keyof typeof buttonColors] || buttonColors.blue;
+            const iconBg = iconBgColors[docType.color as keyof typeof iconBgColors] || iconBgColors.blue;
+            const iconColor = iconColors[docType.color as keyof typeof iconColors] || iconColors.blue;
 
             return (
-              <button
+              <div
                 key={docType.name}
-                onClick={() => handleCreateNew(docType.name as DocumentType)}
-                className={`bg-white p-3 lg:p-4 rounded-xl border-2 ${colors.border} hover:shadow-lg active:scale-95 transition-all group`}
+                className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className={`w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br ${colors.bg} rounded-lg flex items-center justify-center mb-2`}>
-                  <Icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
+                {/* Icon */}
+                <div className={`w-12 h-12 ${iconBg} rounded-xl flex items-center justify-center mb-3`}>
+                  <Icon className={`w-6 h-6 ${iconColor}`} />
                 </div>
-                <h3 className="font-semibold text-gray-900 text-xs lg:text-sm mb-0.5 lg:mb-1 leading-tight">
+
+                {/* Document name and count */}
+                <h3 className="font-semibold text-gray-900 text-sm mb-1">
                   {docType.name}
                 </h3>
-                <div className="flex items-baseline justify-between lg:block">
-                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{count}</p>
-                  <p className="text-xs text-gray-500">docs</p>
-                </div>
-                <div className="mt-2 lg:mt-3 hidden lg:flex items-center justify-center gap-1 text-xs ${colors.text} opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Plus className="w-3 h-3" />
-                  <span>Crear nuevo</span>
-                </div>
-                {/* Mobile: Show plus icon always */}
-                <div className="mt-2 flex lg:hidden items-center justify-center gap-1 text-xs ${colors.text}">
-                  <Plus className="w-3.5 h-3.5" />
-                  <span className="font-medium">Crear</span>
-                </div>
-              </button>
+                <p className="text-2xl font-bold text-gray-900 mb-3">{count}</p>
+
+                {/* Create button */}
+                <button
+                  onClick={() => handleCreateNew(docType.name as DocumentType)}
+                  className={`w-full ${buttonColor} text-white text-sm font-medium py-2.5 rounded-lg active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2`}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden sm:inline">Crear {docType.name === "Órdenes de Cargue" ? "orden" : docType.name.toLowerCase()}</span>
+                  <span className="sm:hidden">Crear</span>
+                </button>
+              </div>
             );
           })}
         </div>
       </div>
 
-      {/* Filters and Search */}
-      <div className="bg-white p-4 lg:p-6 rounded-xl shadow-sm border border-gray-200">
-        <div className="flex flex-col lg:flex-row gap-3 lg:gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Buscar por número o cliente..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Desktop Filters */}
-          <div className="hidden lg:flex gap-2">
-            <button
-              onClick={() => setSelectedType("Todos")}
-              className={`px-4 py-2 rounded-lg font-medium active:scale-95 transition-all ${
-                selectedType === "Todos"
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Todos
-            </button>
-            {documentTypes.map((docType) => (
+      {/* Filters Bar */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+            {/* Left: Filter buttons */}
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 lg:pb-0">
               <button
-                key={docType.name}
-                onClick={() => setSelectedType(docType.name as DocumentType)}
-                className={`px-4 py-2 rounded-lg font-medium active:scale-95 transition-all ${
-                  selectedType === docType.name
-                    ? `bg-${docType.color}-600 text-white shadow-md`
+                onClick={() => setSelectedType("Todos")}
+                className={`flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm active:scale-95 transition-all whitespace-nowrap ${
+                  selectedType === "Todos"
+                    ? "bg-blue-600 text-white shadow-md"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {docType.name}
+                📋 Todos Documentos
               </button>
-            ))}
+              <button
+                onClick={() => setSelectedType("Pedidos")}
+                className={`flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm active:scale-95 transition-all whitespace-nowrap ${
+                  selectedType === "Pedidos"
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                📄 Remesas Documentos
+              </button>
+              <button
+                onClick={() => setSelectedType("Cumplidos")}
+                className={`flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm active:scale-95 transition-all whitespace-nowrap ${
+                  selectedType === "Cumplidos"
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                ✓ Cumplidos
+              </button>
+              <button className="flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95 transition-all whitespace-nowrap">
+                📊 Estadísticas
+              </button>
+              <button className="flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95 transition-all whitespace-nowrap">
+                🗓️ Anulados
+              </button>
+            </div>
+
+            {/* Right: Actions */}
+            <div className="flex items-center gap-2">
+              <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 active:scale-95 transition-all text-sm font-medium whitespace-nowrap">
+                Limpiar
+              </button>
+              <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all text-sm font-medium whitespace-nowrap">
+                Buscar
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Carousel Filters */}
-        <div className="lg:hidden mt-3">
-          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
-            <div className="flex gap-2 pb-2 min-w-max">
-              <button
-                onClick={() => setSelectedType("Todos")}
-                className={`flex-shrink-0 px-4 py-2.5 rounded-lg font-medium text-sm active:scale-95 transition-all ${
-                  selectedType === "Todos"
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 active:bg-gray-200"
-                }`}
-              >
-                Todos
-              </button>
-              {documentTypes.map((docType) => {
-                const getColor = (color: string, isSelected: boolean) => {
-                  if (!isSelected) return "bg-gray-100 text-gray-700 active:bg-gray-200";
-                  
-                  const colors: Record<string, string> = {
-                    blue: "bg-blue-600 text-white",
-                    green: "bg-green-600 text-white",
-                    purple: "bg-purple-600 text-white",
-                    orange: "bg-orange-600 text-white",
-                  };
-                  return `${colors[color] || "bg-gray-600 text-white"} shadow-md`;
-                };
-
-                return (
-                  <button
-                    key={docType.name}
-                    onClick={() => setSelectedType(docType.name as DocumentType)}
-                    className={`flex-shrink-0 px-4 py-2.5 rounded-lg font-medium text-sm active:scale-95 transition-all whitespace-nowrap ${
-                      getColor(docType.color, selectedType === docType.name)
-                    }`}
-                  >
-                    {docType.name}
-                  </button>
-                );
-              })}
-            </div>
+        {/* Search bar */}
+        <div className="p-4 bg-gray-50">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar por número de documento o cliente..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            />
           </div>
         </div>
       </div>
 
-      {/* Documents - Desktop Table / Mobile Cards */}
+      {/* Documents Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        {/* Table Header Info */}
+        <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">Mostrando {filteredDocuments.length} de {mockDocuments.length} registros</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <select className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option>10</option>
+              <option>25</option>
+              <option>50</option>
+              <option>100</option>
+            </select>
+            <span className="text-sm text-gray-600">por página</span>
+          </div>
+        </div>
+
         {/* Desktop Table View */}
         <div className="hidden lg:block overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-gray-100 border-b-2 border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Tipo
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+                  Tipo Documento
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Número
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+                  Número Documento
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Fecha
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+                  Fecha Creación
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Cliente
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Ruta
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Valor
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
                   Estado
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
+                  Ruta
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-100">
               {filteredDocuments.map((doc) => {
-                const typeColor = getTypeColor(doc.type);
+                const docTypeInfo = documentTypes.find((dt) => dt.name === doc.type);
+
                 return (
                   <tr
                     key={doc.id}
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-${typeColor}-100 text-${typeColor}-800`}
-                      >
-                        {doc.type}
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          docTypeInfo?.color === 'blue' ? 'bg-blue-500' :
+                          docTypeInfo?.color === 'yellow' ? 'bg-yellow-500' :
+                          docTypeInfo?.color === 'purple' ? 'bg-purple-500' :
+                          docTypeInfo?.color === 'orange' ? 'bg-orange-500' :
+                          docTypeInfo?.color === 'cyan' ? 'bg-cyan-500' :
+                          docTypeInfo?.color === 'teal' ? 'bg-cyan-600' : 'bg-gray-500'
+                        }`}></div>
+                        <span className="text-sm font-medium text-gray-900">{doc.type}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className="text-sm font-semibold text-gray-900">{doc.numero}</span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-600">
+                        {new Date(doc.fecha).toLocaleDateString("es-CO")}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                      {doc.numero}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                      {new Date(doc.fecha).toLocaleDateString("es-CO")}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-900">
-                      {doc.cliente}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                      {doc.origen} → {doc.destino}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                      ${doc.valor.toLocaleString("es-CO")}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${getStatusColor(
                           doc.estado
                         )}`}
                       >
                         {doc.estado}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEdit(doc)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                          title="Editar"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDownload(doc)}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all"
-                          title="Descargar"
-                        >
-                          <Download className="w-4 h-4" />
-                        </button>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-900">{doc.origen}</span>
+                        <span className="text-xs text-gray-500">→ {doc.destino}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => handleViewPDF(doc)}
-                          className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
-                          title="Ver PDF"
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                          title="Ver documento"
                         >
-                          <FileCheck className="w-4 h-4" />
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
                         </button>
                       </div>
                     </td>
@@ -469,8 +471,21 @@ export default function Transporte() {
         {/* Mobile Card View */}
         <div className="lg:hidden divide-y divide-gray-200">
           {filteredDocuments.map((doc) => {
-            const typeColor = getTypeColor(doc.type);
             const Icon = documentTypes.find((dt) => dt.name === doc.type)?.icon || FileText;
+            const docTypeInfo = documentTypes.find((dt) => dt.name === doc.type);
+
+            // Icon gradients based on type
+            const iconGradients: Record<string, string> = {
+              blue: "bg-gradient-to-br from-blue-500 to-blue-600",
+              yellow: "bg-gradient-to-br from-yellow-400 to-yellow-500",
+              purple: "bg-gradient-to-br from-purple-500 to-purple-600",
+              orange: "bg-gradient-to-br from-orange-500 to-orange-600",
+              cyan: "bg-gradient-to-br from-cyan-400 to-cyan-500",
+              teal: "bg-gradient-to-br from-cyan-500 to-cyan-600",
+            };
+
+            const iconGradient = docTypeInfo ? iconGradients[docTypeInfo.color] || iconGradients.blue : iconGradients.blue;
+
             return (
               <div
                 key={doc.id}
@@ -479,7 +494,7 @@ export default function Transporte() {
                 {/* Header: Tipo + Número */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className={`w-10 h-10 bg-gradient-to-br from-${typeColor}-500 to-${typeColor}-600 rounded-lg flex items-center justify-center flex-shrink-0`}>
+                    <div className={`w-10 h-10 ${iconGradient} rounded-lg flex items-center justify-center flex-shrink-0`}>
                       <Icon className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -574,6 +589,26 @@ export default function Transporte() {
             <p className="text-gray-400 text-sm mt-2">
               Intenta cambiar los filtros o crear un nuevo documento
             </p>
+          </div>
+        )}
+
+        {/* Table Footer - Pagination */}
+        {filteredDocuments.length > 0 && (
+          <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              Página 1 de 1
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Anterior
+              </button>
+              <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium">
+                1
+              </button>
+              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Siguiente
+              </button>
+            </div>
           </div>
         )}
       </div>

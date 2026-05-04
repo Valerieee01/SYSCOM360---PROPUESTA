@@ -42,7 +42,7 @@ export default function OrdenCargueForm({
           Datos Básicos
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               No. Orden *
             </label>
@@ -74,7 +74,7 @@ export default function OrdenCargueForm({
               <option>PED-2024-003</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Cia Pedido
             </label>
@@ -104,7 +104,7 @@ export default function OrdenCargueForm({
               <option>Distribución</option>
             </select>
           </div>
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Lugar Pago Flete
             </label>
@@ -114,7 +114,7 @@ export default function OrdenCargueForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Estado Orden
             </label>
@@ -150,7 +150,7 @@ export default function OrdenCargueForm({
               <option>Global Logistics Ltd - 700345678</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               NIT / Cédula Remitente *
             </label>
@@ -171,7 +171,7 @@ export default function OrdenCargueForm({
               <option>Almacén Sur - Cali</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Dirección Sede Origen *
             </label>
@@ -203,7 +203,7 @@ export default function OrdenCargueForm({
               <option>Super Mercados 123 - 700765432</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               NIT / Cédula Destinatario *
             </label>
@@ -224,7 +224,7 @@ export default function OrdenCargueForm({
               <option>Almacén Norte - Santa Marta</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Dirección Destino
             </label>
@@ -236,7 +236,7 @@ export default function OrdenCargueForm({
               disabled
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Ciudad Destino
             </label>
@@ -250,8 +250,8 @@ export default function OrdenCargueForm({
         </div>
       </div>
 
-      {/* 4. Propietario de la Carga / Generador */}
-      <div className="bg-gradient-to-br from-amber-50 to-amber-100/30 rounded-xl p-6 border border-amber-200">
+      {/* 4. Propietario de la Carga / Generador - OCULTO EN MÓVIL */}
+      <div className="bg-gradient-to-br from-amber-50 to-amber-100/30 rounded-xl p-6 border border-amber-200 hidden lg:block">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Building2 className="w-5 h-5 text-amber-600" />
           Propietario de la Carga (RNDC)
@@ -292,8 +292,8 @@ export default function OrdenCargueForm({
         </div>
       </div>
 
-      {/* 5. Ruta */}
-      <div className="bg-gradient-to-br from-cyan-50 to-cyan-100/30 rounded-xl p-6 border border-cyan-200">
+      {/* 5. Ruta - OCULTO EN MÓVIL */}
+      <div className="bg-gradient-to-br from-cyan-50 to-cyan-100/30 rounded-xl p-6 border border-cyan-200 hidden lg:block">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Route className="w-5 h-5 text-cyan-600" />
           Ruta de Transporte
@@ -354,7 +354,7 @@ export default function OrdenCargueForm({
               <option>GHI-789 (Dobletroque - Disponible)</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Remolque (Placa)
             </label>
@@ -365,7 +365,7 @@ export default function OrdenCargueForm({
               <option>REM-333 (Plataforma)</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Conductor *
             </label>
@@ -376,7 +376,7 @@ export default function OrdenCargueForm({
               <option>Carlos Rodríguez - CC 3456789</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Documento Conductor
             </label>
@@ -387,7 +387,7 @@ export default function OrdenCargueForm({
               disabled
             />
           </div>
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Nombre Completo del Conductor
             </label>
@@ -399,7 +399,7 @@ export default function OrdenCargueForm({
             />
           </div>
         </div>
-        <div className="mt-3 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+        <div className="mt-3 p-3 bg-indigo-50 border border-indigo-200 rounded-lg hidden lg:block">
           <p className="text-sm text-indigo-800">
             <strong>Estado del vehículo:</strong>{" "}
             <span className="text-green-600">✓ Disponible</span> •{" "}
@@ -426,7 +426,7 @@ export default function OrdenCargueForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
             />
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Código INVÍAS
             </label>
@@ -436,7 +436,7 @@ export default function OrdenCargueForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
             />
           </div>
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Descripción de la Mercancía *
             </label>
@@ -508,7 +508,7 @@ export default function OrdenCargueForm({
               <option>Litros (L)</option>
             </select>
           </div>
-          <div>
+          <div className="hidden lg:block">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Referencia 1
             </label>
@@ -534,8 +534,8 @@ export default function OrdenCargueForm({
         </div>
       </div>
 
-      {/* 9. Mercancía Peligrosa (Opcional) */}
-      <div className="bg-gradient-to-br from-red-50 to-red-100/30 rounded-xl p-6 border border-red-200">
+      {/* 9. Mercancía Peligrosa (Opcional) - OCULTO EN MÓVIL */}
+      <div className="bg-gradient-to-br from-red-50 to-red-100/30 rounded-xl p-6 border border-red-200 hidden lg:block">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-red-600" />
@@ -615,7 +615,7 @@ export default function OrdenCargueForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Compañía para Cargue *
+              Fecha y hora cita cargue *
             </label>
             <input
               type="datetime-local"
@@ -624,7 +624,7 @@ export default function OrdenCargueForm({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Compañía para Descargue
+              Fecha y hora cita descargue
             </label>
             <input
               type="datetime-local"
@@ -632,7 +632,7 @@ export default function OrdenCargueForm({
             />
           </div>
         </div>
-        <div className="mt-3 p-3 bg-pink-50 border border-pink-200 rounded-lg">
+        <div className="mt-3 p-3 bg-pink-50 border border-pink-200 rounded-lg hidden lg:block">
           <p className="text-sm text-pink-800">
             📅 Formato: dd-mm-aaaa hh:mm • Las citas programadas se envían
             automáticamente al conductor y al cliente
@@ -648,7 +648,7 @@ export default function OrdenCargueForm({
         </h3>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Comentarios
+            Observaciones
           </label>
           <textarea
             rows={4}

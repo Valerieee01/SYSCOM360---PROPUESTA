@@ -715,17 +715,18 @@ export default function TransportDashboard() {
                 outerRadius={80}
                 paddingAngle={3}
                 dataKey="value"
+                key="pie-viajes-estado"
               >
                 {viajesPorEstadoData.map((entry, index) => (
                   <Cell key={`estado-cell-${entry.name}-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip key="tooltip-pie" />
             </PieChart>
           </ResponsiveContainer>
           <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-3 sm:mt-4">
-            {viajesPorEstadoData.map((item) => (
-              <div key={item.name} className="flex items-center gap-1.5 sm:gap-2">
+            {viajesPorEstadoData.map((item, index) => (
+              <div key={`estado-legend-${item.name}-${index}`} className="flex items-center gap-1.5 sm:gap-2">
                 <div className="w-2 h-2 sm:w-3 sm:h-3 rounded" style={{ backgroundColor: item.color }}></div>
                 <span className="text-[10px] sm:text-xs md:text-sm text-gray-600">
                   {item.name}: {item.value}
@@ -740,10 +741,11 @@ export default function TransportDashboard() {
           <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Viajes por Ciudad</h3>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={viajesPorCiudadData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="ciudad" stroke="#6b7280" style={{ fontSize: "10px" }} />
-              <YAxis stroke="#6b7280" style={{ fontSize: "10px" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" key="grid-bar" />
+              <XAxis dataKey="ciudad" stroke="#6b7280" style={{ fontSize: "10px" }} key="xaxis-bar" />
+              <YAxis stroke="#6b7280" style={{ fontSize: "10px" }} key="yaxis-bar" />
               <Tooltip
+                key="tooltip-bar"
                 contentStyle={{
                   backgroundColor: "#fff",
                   border: "1px solid #e5e7eb",
@@ -751,7 +753,7 @@ export default function TransportDashboard() {
                   fontSize: "12px",
                 }}
               />
-              <Bar dataKey="cantidad" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="cantidad" fill="#3b82f6" radius={[8, 8, 0, 0]} key="bar-cantidad" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -761,10 +763,11 @@ export default function TransportDashboard() {
           <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Cumplimiento Diario</h3>
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={cumplimientoDiarioData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="dia" stroke="#6b7280" style={{ fontSize: "10px" }} />
-              <YAxis stroke="#6b7280" style={{ fontSize: "10px" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" key="grid-area" />
+              <XAxis dataKey="dia" stroke="#6b7280" style={{ fontSize: "10px" }} key="xaxis-area" />
+              <YAxis stroke="#6b7280" style={{ fontSize: "10px" }} key="yaxis-area" />
               <Tooltip
+                key="tooltip-area"
                 contentStyle={{
                   backgroundColor: "#fff",
                   border: "1px solid #e5e7eb",
@@ -809,10 +812,11 @@ export default function TransportDashboard() {
           <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Documentos por Día</h3>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={documentosPorDiaData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="dia" stroke="#6b7280" style={{ fontSize: "10px" }} />
-              <YAxis stroke="#6b7280" style={{ fontSize: "10px" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" key="grid-line" />
+              <XAxis dataKey="dia" stroke="#6b7280" style={{ fontSize: "10px" }} key="xaxis-line" />
+              <YAxis stroke="#6b7280" style={{ fontSize: "10px" }} key="yaxis-line" />
               <Tooltip
+                key="tooltip-line"
                 contentStyle={{
                   backgroundColor: "#fff",
                   border: "1px solid #e5e7eb",
@@ -820,10 +824,10 @@ export default function TransportDashboard() {
                   fontSize: "12px",
                 }}
               />
-              <Line type="monotone" dataKey="pedidos" stroke="#3b82f6" strokeWidth={2} />
-              <Line type="monotone" dataKey="ordenes" stroke="#10b981" strokeWidth={2} />
-              <Line type="monotone" dataKey="remesas" stroke="#8b5cf6" strokeWidth={2} />
-              <Line type="monotone" dataKey="manifiestos" stroke="#f59e0b" strokeWidth={2} />
+              <Line type="monotone" dataKey="pedidos" stroke="#3b82f6" strokeWidth={2} key="line-pedidos" />
+              <Line type="monotone" dataKey="ordenes" stroke="#10b981" strokeWidth={2} key="line-ordenes" />
+              <Line type="monotone" dataKey="remesas" stroke="#8b5cf6" strokeWidth={2} key="line-remesas" />
+              <Line type="monotone" dataKey="manifiestos" stroke="#f59e0b" strokeWidth={2} key="line-manifiestos" />
             </LineChart>
           </ResponsiveContainer>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 sm:mt-4">
