@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FileText,
   Package,
@@ -10,6 +10,9 @@ import {
   Filter,
   Download,
   Edit2,
+  Eye,
+  XCircle,
+  Info,
   Search,
   Calendar,
   X,
@@ -22,6 +25,12 @@ import {
   Copy,
   Save,
   Send,
+  ArrowUpRight,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import OrdenCargueForm from "./OrdenCargueForm";
 import RemesaForm from "./RemesaForm";
@@ -30,6 +39,17 @@ import CumplidoForm from "./CumplidoForm";
 import AnticipoForm from "./AnticipoForm";
 import TransportDashboard from "./TransportDashboard";
 import PDFViewer from "../../components/PDFViewer";
+import { useTransport } from "../../context/TransportContext";
+import {
+  getSubprocesos,
+  type SubprocesoDef,
+} from "./subprocesos";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "../../components/ui/dropdown-menu";
 
 type DocumentType =
   | "Pedidos"
@@ -44,121 +64,162 @@ interface Document {
   type: DocumentType;
   numero: string;
   fecha: string;
+  compania: string;
   cliente: string;
   origen: string;
   destino: string;
+  vehiculo: string;
   valor: number;
-  estado: "Pendiente" | "En Proceso" | "Completado" | "Anulado";
+  estado: "Pendiente" | "En Proceso" | "Completado" | "Aplicado" | "Anulado";
 }
 
+// Permisos de creación (por ahora todos habilitados; se conectaría al rol del
+// usuario). Si un tipo no es creable, la card muestra "Solo visualización".
+const tiposCreables = new Set<DocumentType>([
+  "Pedidos",
+  "Órdenes de Cargue",
+  "Remesas",
+  "Manifiestos",
+  "Anticipos",
+  "Cumplidos",
+]);
+const puedeCrear = (type: DocumentType) => tiposCreables.has(type);
+
+// `hoy` = documentos creados hoy para ese tipo · `singular` = para el botón "Crear ..."
 const documentTypes = [
-  { name: "Pedidos", icon: FileText, color: "blue" },
-  { name: "Órdenes de Cargue", icon: Package, color: "yellow" },
-  { name: "Remesas", icon: Truck, color: "purple" },
-  { name: "Manifiestos", icon: FileCheck, color: "orange" },
-  { name: "Anticipos", icon: DollarSign, color: "cyan" },
-  { name: "Cumplidos", icon: ClipboardCheck, color: "teal" },
+  { name: "Pedidos", singular: "pedido", icon: FileText, color: "blue", hoy: 12 },
+  { name: "Órdenes de Cargue", singular: "orden", icon: Package, color: "yellow", hoy: 8 },
+  { name: "Remesas", singular: "remesa", icon: Truck, color: "purple", hoy: 15 },
+  { name: "Manifiestos", singular: "manifiesto", icon: FileCheck, color: "orange", hoy: 7 },
+  { name: "Anticipos", singular: "anticipo", icon: DollarSign, color: "cyan", hoy: 5 },
+  { name: "Cumplidos", singular: "cumplido", icon: ClipboardCheck, color: "teal", hoy: 9 },
 ];
 
+// Badge por tipo de documento (color propio según diseño de referencia)
+const tipoBadge: Record<DocumentType, { label: string; className: string }> = {
+  Pedidos: { label: "Pedido", className: "bg-blue-100 text-blue-700" },
+  "Órdenes de Cargue": { label: "Órden", className: "bg-yellow-100 text-yellow-700" },
+  Remesas: { label: "Remesa", className: "bg-purple-100 text-purple-700" },
+  Manifiestos: { label: "Manifiesto", className: "bg-orange-100 text-orange-700" },
+  Cumplidos: { label: "Cumplido", className: "bg-cyan-100 text-cyan-700" },
+  Anticipos: { label: "Anticipo", className: "bg-cyan-50 text-cyan-600" },
+};
+
+// Badge por estado
+const estadoBadge: Record<Document["estado"], string> = {
+  Pendiente: "bg-yellow-100 text-yellow-800",
+  Anulado: "bg-purple-100 text-purple-800",
+  "En Proceso": "bg-blue-100 text-blue-800",
+  Completado: "bg-green-100 text-green-800",
+  Aplicado: "bg-green-100 text-green-800",
+};
+
+// Punto de color por estado (lista móvil / leyenda)
+const estadoDot: Record<Document["estado"], string> = {
+  Pendiente: "bg-yellow-400",
+  Aplicado: "bg-green-500",
+  Anulado: "bg-red-500",
+  "En Proceso": "bg-blue-500",
+  Completado: "bg-green-500",
+};
+
+// Acciones disponibles por tipo (ver/descargar siempre disponibles).
+// La edición además se oculta si el documento está Anulado (regla de negocio).
+const accionesPorTipo: Record<DocumentType, { editar: boolean; duplicar: boolean }> = {
+  Pedidos: { editar: true, duplicar: true },
+  "Órdenes de Cargue": { editar: true, duplicar: true },
+  Remesas: { editar: false, duplicar: true },
+  Manifiestos: { editar: false, duplicar: false },
+  Cumplidos: { editar: false, duplicar: false },
+  Anticipos: { editar: false, duplicar: false },
+};
+
+// Ruta con formato "ORIGEN _ DESTINO NNNN"
+const rutaFormat = (doc: Document) => {
+  const digits = doc.numero.replace(/\D/g, "");
+  const suffix = digits.slice(-4).padStart(4, "0");
+  return `${doc.origen.toUpperCase()} _ ${doc.destino.toUpperCase()} ${suffix}`;
+};
+
 const mockDocuments: Document[] = [
-  {
-    id: "1",
-    type: "Pedidos",
-    numero: "PED-2024-001",
-    fecha: "2024-03-10",
-    cliente: "Transportes ABC",
-    origen: "Bogotá",
-    destino: "Medellín",
-    valor: 1500000,
-    estado: "Pendiente",
-  },
-  {
-    id: "2",
-    type: "Órdenes de Cargue",
-    numero: "OC-2024-045",
-    fecha: "2024-03-11",
-    cliente: "Logística XYZ",
-    origen: "Cali",
-    destino: "Barranquilla",
-    valor: 2300000,
-    estado: "En Proceso",
-  },
-  {
-    id: "3",
-    type: "Remesas",
-    numero: "REM-2024-128",
-    fecha: "2024-03-12",
-    cliente: "Distribuidora 123",
-    origen: "Cartagena",
-    destino: "Bogotá",
-    valor: 1800000,
-    estado: "Completado",
-  },
-  {
-    id: "4",
-    type: "Manifiestos",
-    numero: "MAN-2024-089",
-    fecha: "2024-03-13",
-    cliente: "Carga Pesada SAS",
-    origen: "Medellín",
-    destino: "Pereira",
-    valor: 3500000,
-    estado: "Completado",
-  },
-  {
-    id: "5",
-    type: "Anticipos",
-    numero: "ANT-2024-067",
-    fecha: "2024-03-14",
-    cliente: "Envíos Rápidos",
-    origen: "Bucaramanga",
-    destino: "Cúcuta",
-    valor: 950000,
-    estado: "Completado",
-  },
-  {
-    id: "6",
-    type: "Cumplidos",
-    numero: "CUM-2024-067",
-    fecha: "2024-03-14",
-    cliente: "Envíos Rápidos",
-    origen: "Bucaramanga",
-    destino: "Cúcuta",
-    valor: 950000,
-    estado: "Completado",
-  },
+  { id: "1", type: "Pedidos", numero: "PED-2024-001", fecha: "2024-03-10", compania: "01", cliente: "Transportes ABC", origen: "Bogotá", destino: "Medellín", vehiculo: "ABC-123", valor: 1500000, estado: "Pendiente" },
+  { id: "2", type: "Órdenes de Cargue", numero: "OC-2024-045", fecha: "2024-03-11", compania: "01", cliente: "Logística XYZ", origen: "Cali", destino: "Barranquilla", vehiculo: "DEF-456", valor: 2300000, estado: "Anulado" },
+  { id: "3", type: "Remesas", numero: "REM-2024-128", fecha: "2024-03-12", compania: "02", cliente: "Distribuidora 123", origen: "Cartagena", destino: "Bogotá", vehiculo: "GHI-789", valor: 1800000, estado: "Pendiente" },
+  { id: "4", type: "Manifiestos", numero: "MAN-2024-089", fecha: "2024-03-13", compania: "01", cliente: "Carga Pesada SAS", origen: "Medellín", destino: "Pereira", vehiculo: "JKL-012", valor: 3500000, estado: "Aplicado" },
+  { id: "5", type: "Anticipos", numero: "ANT-2024-067", fecha: "2024-03-14", compania: "03", cliente: "Envíos Rápidos", origen: "Bucaramanga", destino: "Cúcuta", vehiculo: "MNO-345", valor: 950000, estado: "Completado" },
+  { id: "6", type: "Cumplidos", numero: "CUM-2024-067", fecha: "2024-03-14", compania: "01", cliente: "Envíos Rápidos", origen: "Bucaramanga", destino: "Cúcuta", vehiculo: "MNO-345", valor: 950000, estado: "Completado" },
+  { id: "7", type: "Pedidos", numero: "PED-2024-002", fecha: "2024-03-15", compania: "02", cliente: "Comercial del Norte", origen: "Barranquilla", destino: "Cali", vehiculo: "PQR-678", valor: 2100000, estado: "En Proceso" },
+  { id: "8", type: "Remesas", numero: "REM-2024-129", fecha: "2024-03-15", compania: "01", cliente: "Almacenes Sur", origen: "Bogotá", destino: "Cúcuta", vehiculo: "STU-901", valor: 1250000, estado: "Anulado" },
+  { id: "9", type: "Órdenes de Cargue", numero: "OC-2024-046", fecha: "2024-03-16", compania: "03", cliente: "Logística XYZ", origen: "Medellín", destino: "Bogotá", vehiculo: "VWX-234", valor: 2750000, estado: "Pendiente" },
+  { id: "10", type: "Manifiestos", numero: "MAN-2024-090", fecha: "2024-03-16", compania: "02", cliente: "Carga Pesada SAS", origen: "Cali", destino: "Pasto", vehiculo: "YZA-567", valor: 4100000, estado: "Pendiente" },
+  { id: "11", type: "Anticipos", numero: "ANT-2024-068", fecha: "2024-03-17", compania: "01", cliente: "Transportes ABC", origen: "Bogotá", destino: "Ibagué", vehiculo: "BCD-890", valor: 780000, estado: "Pendiente" },
+  { id: "12", type: "Cumplidos", numero: "CUM-2024-068", fecha: "2024-03-17", compania: "03", cliente: "Distribuidora 123", origen: "Cartagena", destino: "Montería", vehiculo: "EFG-123", valor: 1650000, estado: "Aplicado" },
 ];
 
 export default function Transporte() {
+  const { mostrarToast } = useTransport();
+  const [documents, setDocuments] = useState<Document[]>(mockDocuments);
   const [selectedType, setSelectedType] = useState<DocumentType | "Todos">("Todos");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // filtro "Documento" (número)
+  const [companiaFilter, setCompaniaFilter] = useState("");
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
+  const [showFiltrosMobile, setShowFiltrosMobile] = useState(false);
+  // Subproceso activo (host genérico): cualquier entrada del registro SUBPROCESOS
+  const [activeSubproceso, setActiveSubproceso] = useState<SubprocesoDef | null>(null);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isPDFViewerOpen, setIsPDFViewerOpen] = useState(false);
   const [pdfDocument, setPdfDocument] = useState<Document | null>(null);
+  // Paginación
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [goToPage, setGoToPage] = useState("");
 
-  const filteredDocuments = mockDocuments.filter((doc) => {
+  const handleAnular = (doc: Document) => {
+    setDocuments((prev) =>
+      prev.map((d) => (d.id === doc.id ? { ...d, estado: "Anulado" } : d))
+    );
+    mostrarToast("warning", `Documento ${doc.numero} anulado.`);
+  };
+
+  const filteredDocuments = documents.filter((doc) => {
     const matchesType = selectedType === "Todos" || doc.type === selectedType;
-    const matchesSearch =
-      doc.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.cliente.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesType && matchesSearch;
+    const matchesDocumento = doc.numero.toLowerCase().includes(searchTerm.trim().toLowerCase());
+    const matchesCompania = doc.compania.toLowerCase().includes(companiaFilter.trim().toLowerCase());
+    const matchesInicio = !fechaInicio || doc.fecha >= fechaInicio;
+    const matchesFin = !fechaFin || doc.fecha <= fechaFin;
+    return matchesType && matchesDocumento && matchesCompania && matchesInicio && matchesFin;
   });
 
-  const getStatusColor = (estado: string) => {
-    switch (estado) {
-      case "Pendiente":
-        return "bg-yellow-100 text-yellow-800";
-      case "En Proceso":
-        return "bg-blue-100 text-blue-800";
-      case "Completado":
-        return "bg-green-100 text-green-800";
-      case "Anulado":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+  // Reiniciar a la primera página cuando cambian filtros o el tamaño de página
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedType, searchTerm, companiaFilter, fechaInicio, fechaFin, itemsPerPage]);
+
+  const totalRegistros = filteredDocuments.length;
+  const totalPages = Math.max(1, Math.ceil(totalRegistros / itemsPerPage));
+  const pageSafe = Math.min(currentPage, totalPages);
+  const startIndex = (pageSafe - 1) * itemsPerPage;
+  const paginatedDocuments = filteredDocuments.slice(startIndex, startIndex + itemsPerPage);
+  const rangoInicio = totalRegistros === 0 ? 0 : startIndex + 1;
+  const rangoFin = Math.min(startIndex + itemsPerPage, totalRegistros);
+
+  const limpiarFiltros = () => {
+    setSelectedType("Todos");
+    setSearchTerm("");
+    setCompaniaFilter("");
+    setFechaInicio("");
+    setFechaFin("");
+  };
+
+  const irAPagina = (p: number) => setCurrentPage(Math.min(Math.max(1, p), totalPages));
+
+  const handleGoTo = () => {
+    const n = parseInt(goToPage, 10);
+    if (!isNaN(n)) irAPagina(n);
+    setGoToPage("");
   };
 
   const handleCreateNew = (type: DocumentType) => {
@@ -167,9 +228,11 @@ export default function Transporte() {
       type,
       numero: "",
       fecha: "",
+      compania: "",
       cliente: "",
       origen: "",
       destino: "",
+      vehiculo: "",
       valor: 0,
       estado: "Pendiente",
     });
@@ -204,6 +267,63 @@ export default function Transporte() {
     setPdfDocument(null);
   };
 
+  // Campos de filtro reutilizados en la fila desktop y en el bottom-sheet móvil
+  const camposFiltros = (
+    <>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1.5">Tipo Documento</label>
+        <select
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value as DocumentType | "Todos")}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#40A095] bg-white"
+        >
+          <option value="Todos">Todos</option>
+          {documentTypes.map((dt) => (
+            <option key={dt.name} value={dt.name}>{dt.name}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1.5">Documento</label>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Ej: 10"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#40A095]"
+        />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1.5">Compañía</label>
+        <input
+          type="text"
+          value={companiaFilter}
+          onChange={(e) => setCompaniaFilter(e.target.value)}
+          placeholder="01"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#40A095]"
+        />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1.5">Fecha Inicio</label>
+        <input
+          type="date"
+          value={fechaInicio}
+          onChange={(e) => setFechaInicio(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#40A095]"
+        />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1.5">Fecha Fin</label>
+        <input
+          type="date"
+          value={fechaFin}
+          onChange={(e) => setFechaFin(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#40A095]"
+        />
+      </div>
+    </>
+  );
+
   return (
     <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
       {/* Header */}
@@ -220,10 +340,9 @@ export default function Transporte() {
 
       {/* Document Type Cards - Create Buttons */}
       <div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
           {documentTypes.map((docType) => {
             const Icon = docType.icon;
-            const count = mockDocuments.filter((d) => d.type === docType.name).length;
 
             // Button color mappings based on image
             const buttonColors = {
@@ -257,6 +376,9 @@ export default function Transporte() {
             const iconBg = iconBgColors[docType.color as keyof typeof iconBgColors] || iconBgColors.blue;
             const iconColor = iconColors[docType.color as keyof typeof iconColors] || iconColors.blue;
 
+            // Subprocesos asociados a esta tarjeta (desde el registro declarativo)
+            const subprocesos = getSubprocesos(docType.name);
+
             return (
               <div
                 key={docType.name}
@@ -267,113 +389,131 @@ export default function Transporte() {
                   <Icon className={`w-6 h-6 ${iconColor}`} />
                 </div>
 
-                {/* Document name and count */}
-                <h3 className="font-semibold text-gray-900 text-sm mb-1">
+                {/* Título del tipo de documento */}
+                <h3 className="font-semibold text-gray-900 text-sm mb-2">
                   {docType.name}
                 </h3>
-                <p className="text-2xl font-bold text-gray-900 mb-3">{count}</p>
 
-                {/* Create button */}
-                <button
-                  onClick={() => handleCreateNew(docType.name as DocumentType)}
-                  className={`w-full ${buttonColor} text-white text-sm font-medium py-2.5 rounded-lg active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2`}
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">Crear {docType.name === "Órdenes de Cargue" ? "orden" : docType.name.toLowerCase()}</span>
-                  <span className="sm:hidden">Crear</span>
-                </button>
+                {/* Pill "Hoy" + cantidad creada hoy */}
+                <div className="mb-3">
+                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+                    <Calendar className="w-3.5 h-3.5" />
+                    Hoy
+                    <span className="ml-0.5 font-bold text-gray-900">{docType.hoy}</span>
+                  </span>
+                </div>
+
+                {/* Acción: Crear (si el rol lo permite) o etiqueta de solo lectura */}
+                {puedeCrear(docType.name as DocumentType) ? (
+                  <button
+                    onClick={() => handleCreateNew(docType.name as DocumentType)}
+                    className={`w-full ${buttonColor} text-white text-sm font-medium py-2.5 rounded-lg active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2`}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="hidden sm:inline">Crear {docType.singular}</span>
+                    <span className="sm:hidden">Crear</span>
+                  </button>
+                ) : (
+                  <div className="w-full py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 text-xs font-medium flex items-center justify-center gap-1.5">
+                    <Info className="w-3.5 h-3.5" />
+                    <span>Solo visualización</span>
+                  </div>
+                )}
+
+                {/* Slot de subprocesos: altura reservada en TODAS las tarjetas para
+                    mantener la armonía. Se adapta a la cantidad de subprocesos:
+                    0 → vacío · 1 → enlace directo · ≥2 → menú "Procesos (n)". */}
+                <div className="mt-2 h-5 flex items-center justify-center">
+                  {subprocesos.length === 1 && (
+                    <button
+                      onClick={() => setActiveSubproceso(subprocesos[0])}
+                      className="text-xs font-medium text-[#40A095] hover:text-[#2f7d74] active:scale-95 transition-all flex items-center justify-center gap-1"
+                    >
+                      <span>{subprocesos[0].label}</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  {subprocesos.length > 1 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="text-xs font-medium text-[#40A095] hover:text-[#2f7d74] active:scale-95 transition-all flex items-center justify-center gap-1 outline-none">
+                          <span>Procesos ({subprocesos.length})</span>
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="center" className="w-56">
+                        {subprocesos.map((sp) => {
+                          const SpIcon = sp.icon;
+                          return (
+                            <DropdownMenuItem
+                              key={sp.id}
+                              onClick={() => setActiveSubproceso(sp)}
+                              className="gap-2 cursor-pointer"
+                            >
+                              <SpIcon className="w-4 h-4 text-[#40A095]" />
+                              <span>{sp.label}</span>
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Filters Bar */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
-            {/* Left: Filter buttons */}
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 lg:pb-0">
-              <button
-                onClick={() => setSelectedType("Todos")}
-                className={`flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm active:scale-95 transition-all whitespace-nowrap ${
-                  selectedType === "Todos"
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                📋 Todos Documentos
-              </button>
-              <button
-                onClick={() => setSelectedType("Pedidos")}
-                className={`flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm active:scale-95 transition-all whitespace-nowrap ${
-                  selectedType === "Pedidos"
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                📄 Remesas Documentos
-              </button>
-              <button
-                onClick={() => setSelectedType("Cumplidos")}
-                className={`flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm active:scale-95 transition-all whitespace-nowrap ${
-                  selectedType === "Cumplidos"
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                ✓ Cumplidos
-              </button>
-              <button className="flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95 transition-all whitespace-nowrap">
-                📊 Estadísticas
-              </button>
-              <button className="flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95 transition-all whitespace-nowrap">
-                🗓️ Anulados
-              </button>
-            </div>
-
-            {/* Right: Actions */}
-            <div className="flex items-center gap-2">
-              <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 active:scale-95 transition-all text-sm font-medium whitespace-nowrap">
-                Limpiar
-              </button>
-              <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all text-sm font-medium whitespace-nowrap">
-                Buscar
-              </button>
-            </div>
-          </div>
+      {/* Filters Bar — desktop/tablet (inline) */}
+      <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          {camposFiltros}
         </div>
-
-        {/* Search bar */}
-        <div className="p-4 bg-gray-50">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Buscar por número de documento o cliente..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            />
-          </div>
+        <div className="flex items-center justify-end gap-2 mt-3">
+          <button
+            onClick={limpiarFiltros}
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:scale-95 transition-all text-sm font-medium"
+          >
+            Limpiar
+          </button>
+          <button
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all text-sm font-medium flex items-center gap-2"
+          >
+            <Search className="w-4 h-4" />
+            Buscar
+          </button>
         </div>
       </div>
+
+      {/* Filtros — móvil (botón que abre bottom-sheet) */}
+      <button
+        onClick={() => setShowFiltrosMobile(true)}
+        className="md:hidden w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg active:scale-95 transition-all font-medium shadow-sm"
+      >
+        <Filter className="w-5 h-5" />
+        <span>Filtros de Búsqueda</span>
+      </button>
 
       {/* Documents Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {/* Table Header Info */}
-        <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Mostrando {filteredDocuments.length} de {mockDocuments.length} registros</span>
-          </div>
+        <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between gap-3">
+          <span className="text-sm text-gray-600">
+            Mostrando {rangoInicio}-{rangoFin} de {totalRegistros} registros
+          </span>
           <div className="flex items-center gap-2">
-            <select className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option>10</option>
-              <option>25</option>
-              <option>50</option>
-              <option>100</option>
+            <span className="text-sm text-gray-600">Mostrar:</span>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#40A095]"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
             </select>
-            <span className="text-sm text-gray-600">por página</span>
           </div>
         </div>
 
@@ -382,47 +522,28 @@ export default function Transporte() {
           <table className="w-full">
             <thead className="bg-gray-100 border-b-2 border-gray-200">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
-                  Tipo Documento
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
-                  Número Documento
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
-                  Fecha Creación
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
-                  Estado
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">
-                  Ruta
-                </th>
+                {["Tipo Documento", "Número Documento", "Fecha Creación", "Cliente", "Ruta", "Vehículo", "Estado"].map((h) => (
+                  <th key={h} className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase whitespace-nowrap">
+                    {h}
+                  </th>
+                ))}
                 <th className="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">
                   Acciones
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredDocuments.map((doc) => {
-                const docTypeInfo = documentTypes.find((dt) => dt.name === doc.type);
+              {paginatedDocuments.map((doc) => {
+                const badge = tipoBadge[doc.type];
+                const acciones = accionesPorTipo[doc.type];
+                const puedeEditar = acciones.editar && doc.estado !== "Anulado";
 
                 return (
-                  <tr
-                    key={doc.id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
+                  <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          docTypeInfo?.color === 'blue' ? 'bg-blue-500' :
-                          docTypeInfo?.color === 'yellow' ? 'bg-yellow-500' :
-                          docTypeInfo?.color === 'purple' ? 'bg-purple-500' :
-                          docTypeInfo?.color === 'orange' ? 'bg-orange-500' :
-                          docTypeInfo?.color === 'cyan' ? 'bg-cyan-500' :
-                          docTypeInfo?.color === 'teal' ? 'bg-cyan-600' : 'bg-gray-500'
-                        }`}></div>
-                        <span className="text-sm font-medium text-gray-900">{doc.type}</span>
-                      </div>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${badge.className}`}>
+                        {badge.label}
+                      </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className="text-sm font-semibold text-gray-900">{doc.numero}</span>
@@ -433,31 +554,36 @@ export default function Transporte() {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${getStatusColor(
-                          doc.estado
-                        )}`}
-                      >
+                      <span className="text-sm text-gray-700">{doc.cliente}</span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-gray-700">{rutaFormat(doc)}</span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-700">{doc.vehiculo}</span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${estadoBadge[doc.estado]}`}>
                         {doc.estado}
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{doc.origen}</span>
-                        <span className="text-xs text-gray-500">→ {doc.destino}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => handleViewPDF(doc)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                          title="Ver documento"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
+                        {puedeEditar && (
+                          <button onClick={() => handleEdit(doc)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-all" title="Editar">
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                        )}
+                        {acciones.duplicar && (
+                          <button className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-all" title="Duplicar">
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        )}
+                        <button onClick={() => handleViewPDF(doc)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Ver">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDownload(doc)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all" title="Descargar">
+                          <Download className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -468,121 +594,94 @@ export default function Transporte() {
           </table>
         </div>
 
-        {/* Mobile Card View */}
-        <div className="lg:hidden divide-y divide-gray-200">
-          {filteredDocuments.map((doc) => {
-            const Icon = documentTypes.find((dt) => dt.name === doc.type)?.icon || FileText;
-            const docTypeInfo = documentTypes.find((dt) => dt.name === doc.type);
-
-            // Icon gradients based on type
-            const iconGradients: Record<string, string> = {
-              blue: "bg-gradient-to-br from-blue-500 to-blue-600",
-              yellow: "bg-gradient-to-br from-yellow-400 to-yellow-500",
-              purple: "bg-gradient-to-br from-purple-500 to-purple-600",
-              orange: "bg-gradient-to-br from-orange-500 to-orange-600",
-              cyan: "bg-gradient-to-br from-cyan-400 to-cyan-500",
-              teal: "bg-gradient-to-br from-cyan-500 to-cyan-600",
-            };
-
-            const iconGradient = docTypeInfo ? iconGradients[docTypeInfo.color] || iconGradients.blue : iconGradients.blue;
+        {/* Lista de documentos — móvil/tablet (tarjetas compactas tipo app) */}
+        <div className="lg:hidden p-3 space-y-2 md:space-y-0 md:grid md:grid-cols-2 md:gap-3">
+          {paginatedDocuments.map((doc) => {
+            const badge = tipoBadge[doc.type];
+            const puedeEditar = accionesPorTipo[doc.type].editar && doc.estado !== "Anulado";
 
             return (
               <div
                 key={doc.id}
-                className="p-4 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                onClick={() => handleViewPDF(doc)}
+                className="border border-gray-200 rounded-xl p-3 bg-white active:bg-gray-50 cursor-pointer transition-colors"
               >
-                {/* Header: Tipo + Número */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className={`w-10 h-10 ${iconGradient} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                      <Icon className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        {doc.type}
-                      </p>
-                      <p className="font-bold text-gray-900 text-base truncate">
-                        {doc.numero}
-                      </p>
-                    </div>
+                {/* Fila 1: badge tipo + número · punto estado + ver detalle */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold flex-shrink-0 ${badge.className}`}>
+                      {badge.label}
+                    </span>
+                    <span className="font-semibold text-gray-900 text-sm truncate">
+                      {doc.numero}
+                    </span>
                   </div>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getStatusColor(
-                      doc.estado
-                    )}`}
-                  >
-                    {doc.estado}
-                  </span>
-                </div>
-
-                {/* Info Grid */}
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Fecha</p>
-                    <p className="text-sm font-medium text-gray-900 flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                      {new Date(doc.fecha).toLocaleDateString("es-CO", {
-                        day: "2-digit",
-                        month: "short",
-                      })}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Valor</p>
-                    <p className="text-sm font-bold text-gray-900">
-                      ${(doc.valor / 1000).toFixed(0)}K
-                    </p>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${estadoDot[doc.estado]}`}
+                      title={doc.estado}
+                    ></span>
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
                   </div>
                 </div>
 
-                {/* Cliente */}
-                <div className="mb-3">
-                  <p className="text-xs text-gray-500 mb-1">Cliente</p>
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {doc.cliente}
-                  </p>
-                </div>
+                {/* Fila 2: fecha • placa */}
+                <p className="text-xs text-gray-500 mt-1.5">
+                  {new Date(doc.fecha).toLocaleDateString("es-CO")} • {doc.vehiculo}
+                </p>
 
-                {/* Ruta */}
-                <div className="mb-3">
-                  <p className="text-xs text-gray-500 mb-1">Ruta</p>
-                  <p className="text-sm text-gray-700 flex items-center gap-1 truncate">
-                    <MapPin className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-                    <span className="truncate">{doc.origen}</span>
-                    <span className="text-gray-400">→</span>
-                    <span className="truncate">{doc.destino}</span>
-                  </p>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
-                  <button
-                    onClick={() => handleViewPDF(doc)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all font-medium text-sm"
-                  >
-                    <FileCheck className="w-4 h-4" />
-                    <span>Ver</span>
-                  </button>
-                  <button
-                    onClick={() => handleEdit(doc)}
-                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 active:scale-95 transition-all font-medium text-sm"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    <span>Editar</span>
-                  </button>
+                {/* Fila 3: acciones (Editar · Descargar · Anular) */}
+                <div
+                  className="flex items-center gap-1 mt-2 pt-2 border-t border-gray-100"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {puedeEditar && (
+                    <button
+                      onClick={() => handleEdit(doc)}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 text-gray-600 hover:bg-gray-100 rounded-lg active:scale-95 transition-all text-xs font-medium"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      <span>Editar</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => handleDownload(doc)}
-                    className="p-2.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 active:scale-95 transition-all"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-green-600 hover:bg-green-50 rounded-lg active:scale-95 transition-all text-xs font-medium"
                   >
                     <Download className="w-4 h-4" />
+                    <span>Descargar</span>
                   </button>
+                  {doc.estado !== "Anulado" && (
+                    <button
+                      onClick={() => handleAnular(doc)}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 text-red-600 hover:bg-red-50 rounded-lg active:scale-95 transition-all text-xs font-medium ml-auto"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      <span>Anular</span>
+                    </button>
+                  )}
                 </div>
               </div>
             );
           })}
+
+          {/* Leyenda de estados (solo móvil/tablet) */}
+          {totalRegistros > 0 && (
+            <div className="md:col-span-2 flex items-center justify-center gap-4 flex-wrap pt-3 mt-1 border-t border-gray-100 text-xs text-gray-600">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>Pendiente
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>Aplicado
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>Anulado
+              </span>
+            </div>
+          )}
         </div>
 
-        {filteredDocuments.length === 0 && (
+        {totalRegistros === 0 && (
           <div className="py-12 text-center">
             <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 text-lg">No se encontraron documentos</p>
@@ -593,23 +692,102 @@ export default function Transporte() {
         )}
 
         {/* Table Footer - Pagination */}
-        {filteredDocuments.length > 0 && (
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+        {totalRegistros > 0 && (
+          <>
+            {/* Móvil — versión compacta Anterior/Siguiente */}
+            <div className="md:hidden px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
+              <div className="text-xs text-gray-600">
+                <p>{rangoInicio}-{rangoFin} de {totalRegistros}</p>
+                <p className="text-gray-500">Página {pageSafe} de {totalPages}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => irAPagina(pageSafe - 1)}
+                  disabled={pageSafe === 1}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all font-medium"
+                >
+                  Anterior
+                </button>
+                <button
+                  onClick={() => irAPagina(pageSafe + 1)}
+                  disabled={pageSafe === totalPages}
+                  className="px-3 py-2 bg-[#40A095] text-white rounded-lg text-sm hover:bg-[#358a80] disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all font-medium"
+                >
+                  Siguiente
+                </button>
+              </div>
+            </div>
+
+            {/* Desktop/tablet — paginación numerada completa */}
+            <div className="hidden md:flex px-4 py-3 bg-gray-50 border-t border-gray-200 flex-col sm:flex-row items-center justify-between gap-3">
             <div className="text-sm text-gray-600">
-              Página 1 de 1
+              Página {pageSafe} de {totalPages}
             </div>
-            <div className="flex items-center gap-2">
-              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                Anterior
+            <div className="flex items-center gap-1 flex-wrap justify-center">
+              <button
+                onClick={() => irAPagina(1)}
+                disabled={pageSafe === 1}
+                className="p-1.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                title="Primera"
+              >
+                <ChevronsLeft className="w-4 h-4" />
               </button>
-              <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium">
-                1
+              <button
+                onClick={() => irAPagina(pageSafe - 1)}
+                disabled={pageSafe === 1}
+                className="p-1.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                title="Anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
               </button>
-              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                Siguiente
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => irAPagina(p)}
+                  className={`min-w-[2rem] px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    p === pageSafe
+                      ? "bg-[#40A095] text-white shadow-sm"
+                      : "border border-gray-300 text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+
+              <button
+                onClick={() => irAPagina(pageSafe + 1)}
+                disabled={pageSafe === totalPages}
+                className="p-1.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                title="Siguiente"
+              >
+                <ChevronRight className="w-4 h-4" />
               </button>
+              <button
+                onClick={() => irAPagina(totalPages)}
+                disabled={pageSafe === totalPages}
+                className="p-1.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                title="Última"
+              >
+                <ChevronsRight className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-1.5 ml-2">
+                <span className="text-sm text-gray-600 whitespace-nowrap">Ir a:</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={goToPage}
+                  onChange={(e) => setGoToPage(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleGoTo()}
+                  onBlur={handleGoTo}
+                  className="w-16 px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#40A095]"
+                />
+              </div>
             </div>
-          </div>
+            </div>
+          </>
         )}
       </div>
 
@@ -1330,6 +1508,62 @@ export default function Transporte() {
           documentType={pdfDocument.type}
           onClose={closePDFViewer}
         />
+      )}
+
+      {/* Host genérico de subprocesos (panel superpuesto).
+          Monta el componente del subproceso activo en modo embedded; sirve para
+          cualquier entrada del registro SUBPROCESOS sin código adicional. */}
+      {activeSubproceso && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-40 lg:flex lg:items-center lg:justify-center lg:p-4">
+          <div className="bg-white lg:rounded-xl shadow-xl w-full lg:max-w-5xl h-full lg:h-auto lg:max-h-[90vh] overflow-y-auto">
+            <activeSubproceso.Component
+              embedded
+              onBack={() => setActiveSubproceso(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Filtros de Búsqueda — bottom-sheet (solo móvil) */}
+      {showFiltrosMobile && (
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowFiltrosMobile(false)}
+          />
+          <div className="relative bg-white rounded-t-2xl shadow-2xl max-h-[85vh] overflow-y-auto animate-slide-in">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Filter className="w-5 h-5 text-green-600" />
+                Filtros de Búsqueda
+              </h3>
+              <button
+                onClick={() => setShowFiltrosMobile(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg active:scale-95 transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 grid grid-cols-1 gap-3">
+              {camposFiltros}
+            </div>
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex gap-2">
+              <button
+                onClick={limpiarFiltros}
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:scale-95 transition-all text-sm font-medium"
+              >
+                Limpiar
+              </button>
+              <button
+                onClick={() => setShowFiltrosMobile(false)}
+                className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all text-sm font-medium flex items-center justify-center gap-2"
+              >
+                <Search className="w-4 h-4" />
+                Buscar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

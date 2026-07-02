@@ -327,6 +327,42 @@ export interface Cumplido {
   fechaAnulacion?: Date;
 }
 
+// Corrección de Remesa (Shipment correction / novelty) interface - REM-2
+// Registra una novedad/corrección sobre una remesa existente manteniendo
+// trazabilidad (quién, cuándo, valor anterior → valor nuevo).
+export interface CorreccionRemesa {
+  id: string;
+  numeroRegistro: number; // Consecutivo autogenerado
+  remesaNumero: string;
+  item?: number;
+  tipoCambio: string; // Etiqueta legible, ej: 'Cambio de cita de cargue'
+  campoAfectado: string; // Clave del campo, ej: 'citaCargue'
+  motivoCambio?: string;
+  valorAnterior: string;
+  valorNuevo: string;
+  observaciones?: string;
+  usuario: string;
+  fecha: Date;
+}
+
+// Ajuste a Monitoreo de Manifiesto (monitoring adjustment) interface - MAN-2
+// Registra un ajuste sobre el monitoreo de un manifiesto (llegada/salida en un
+// puesto de control) manteniendo trazabilidad (quién, cuándo, valores anterior → nuevo).
+export interface AjusteMonitoreoManifiesto {
+  id: string;
+  numeroRegistro: number; // Consecutivo autogenerado
+  manifiestoNumero: string;
+  puestoControl: string; // Etiqueta legible del puesto de control
+  motivoAjuste: string;
+  llegadaAnterior: string;
+  llegadaNueva: string;
+  salidaAnterior: string;
+  salidaNueva: string;
+  observaciones?: string;
+  usuario: string;
+  fecha: Date;
+}
+
 // LogSys audit entry interface - PED-4
 export interface LogSysEntry {
   id: string;

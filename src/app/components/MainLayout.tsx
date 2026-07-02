@@ -125,18 +125,19 @@ export default function MainLayout() {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden w-full max-w-full">
-      {/* Sidebar */}
+      {/* Sidebar — riel colapsable en desktop que se despliega al pasar el mouse.
+          En móvil se mantiene como drawer con hamburguesa. */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 shadow-sm transform transition-transform duration-300 ${
+        className={`group fixed inset-y-0 left-0 z-50 w-64 lg:w-20 lg:hover:w-64 bg-white border-r border-gray-200 shadow-sm lg:hover:shadow-xl overflow-hidden transform transition-all duration-300 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo y Nombre del Aplicativo */}
-          <div className="p-6 border-b border-gray-200 bg-gradient-to-br from-[#40A095]/5 to-[#99D6CF]/10">
+          <div className="px-4 py-5 lg:group-hover:px-6 border-b border-gray-200 bg-gradient-to-br from-[#40A095]/5 to-[#99D6CF]/10 transition-all duration-300">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <img src={logoCompact} alt="SYSCOM" className="h-10" />
+                <img src={logoCompact} alt="SYSCOM" className="h-10 w-auto max-w-none" />
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -145,7 +146,7 @@ export default function MainLayout() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1 whitespace-nowrap lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200">
               <h1 className="text-xl font-bold bg-gradient-to-r from-[#40A095] to-[#99D6CF] bg-clip-text text-transparent">
                 Syscom web
               </h1>
@@ -179,22 +180,24 @@ export default function MainLayout() {
                         : "text-gray-700 hover:bg-[#99D6CF]/10 hover:text-[#40A095]"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-5 h-5" />
-                      <span className="font-medium">{module.name}</span>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Icon className="w-5 h-5 flex-shrink-0" />
+                      <span className="font-medium whitespace-nowrap lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200">
+                        {module.name}
+                      </span>
                     </div>
                     {hasSubItems && (
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform ${
+                        className={`w-4 h-4 flex-shrink-0 transition-all lg:opacity-0 lg:group-hover:opacity-100 ${
                           isExpanded ? "rotate-180" : ""
                         }`}
                       />
                     )}
                   </Link>
 
-                  {/* Submenu */}
+                  {/* Submenu (oculto en el riel colapsado; visible al desplegar) */}
                   {hasSubItems && isExpanded && (
-                    <div className="ml-4 mt-2 space-y-1 border-l-2 border-[#DBDBDB] pl-4">
+                    <div className="ml-4 mt-2 space-y-1 border-l-2 border-[#DBDBDB] pl-4 lg:hidden lg:group-hover:block">
                       {module.subItems!.map((subItem) => (
                         <Link
                           key={subItem.path}
@@ -218,33 +221,33 @@ export default function MainLayout() {
           {/* User section */}
           <div className="p-4 border-t border-gray-200">
             <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#99D6CF]/10 cursor-pointer transition-all">
-              <div className="w-8 h-8 bg-gradient-to-r from-[#40A095] to-[#99D6CF] rounded-full flex items-center justify-center text-white">
+              <div className="w-8 h-8 bg-gradient-to-r from-[#40A095] to-[#99D6CF] rounded-full flex items-center justify-center text-white flex-shrink-0">
                 <User className="w-4 h-4" />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0 whitespace-nowrap lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200">
                 <p className="text-sm font-medium text-gray-900">Admin User</p>
                 <p className="text-xs text-gray-500">admin@syscomweb.com</p>
               </div>
             </div>
             <div className="flex gap-2 mt-2">
               <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-[#99D6CF]/10 hover:text-[#40A095] transition-all active:scale-95">
-                <Settings className="w-4 h-4" />
-                <span className="hidden lg:inline text-xs">Config</span>
+                <Settings className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden lg:group-hover:inline text-xs whitespace-nowrap">Config</span>
               </button>
               <button
                 className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-[#F03D26]/10 hover:text-[#F03D26] transition-all active:scale-95"
                 onClick={handleLogout}
               >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden lg:inline text-xs">Salir</span>
+                <LogOut className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden lg:group-hover:inline text-xs whitespace-nowrap">Salir</span>
               </button>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden w-full max-w-full min-w-0">
+      {/* Main Content — offset del ancho del riel en desktop (lg:ml-20) */}
+      <div className="flex-1 flex flex-col overflow-hidden w-full max-w-full min-w-0 lg:ml-20">
         {/* Top Bar */}
         <header className="bg-gradient-to-r from-[#40A095] to-[#99D6CF] shadow-lg">
           <div className="flex items-center justify-between px-4 lg:px-6 py-3">

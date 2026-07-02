@@ -223,7 +223,7 @@ export default function TransportDashboard() {
       </div>
 
       {/* KPIs Principales - Tarjetas superiores */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3 md:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-8 gap-2 sm:gap-3 md:gap-4">
         {/* Viajes en curso */}
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200 sm:border-2">
           <div className="flex items-center justify-between mb-1 sm:mb-2">
@@ -570,7 +570,7 @@ export default function TransportDashboard() {
         </div>
 
         {/* Vista de tabla en desktop */}
-        <div className="hidden md:block overflow-x-auto">
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b-2 border-gray-200">
               <tr>
@@ -632,8 +632,8 @@ export default function TransportDashboard() {
           </table>
         </div>
 
-        {/* Vista de cards en móvil */}
-        <div className="md:hidden space-y-2 sm:space-y-3">
+        {/* Vista de cards en móvil y tablet */}
+        <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
           {filteredTrips.map((trip) => (
             <div
               key={trip.id}
@@ -701,7 +701,7 @@ export default function TransportDashboard() {
       </div>
 
       {/* Gráficas Operativas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
         {/* Viajes por Estado */}
         <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6">
           <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Viajes por Estado</h3>
